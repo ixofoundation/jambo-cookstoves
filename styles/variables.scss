@@ -1,20 +1,20 @@
 :root {
-  --bg-color: white;
-  --secondary-bg-color: #f0f0f0;
-  --primary-color: #1db3d3;
-  --secondary-color: #1297b4;
+  --bg-color: #181111;
+  --secondary-bg-color: #231616;
+  --primary-color: #e0a714;
+  --secondary-color: #e0d214;
   --tertiary-color: #fc9a63;
   --success-color: #22c55e;
   --disabled-color: #d1d5db;
-  --footer-bg-color: white;
+  --footer-bg-color: #181111;
   --error-color: #ef4444;
   --grey-color: #9ca3af;
   --icon-grey-color: #d1d5db;
-  --light-grey-color: #f0f0f0;
+  --light-grey-color: #4f3535;
   --backdrop-color: rgba(255, 255, 255, 0.1);
   --main-font-size: 16px;
-  --main-font-color: rgba(0, 0, 0, 0.9);
-  --main-font-color-inverted: rgba(255, 255, 255, 1);
+  --main-font-color: rgba(255, 255, 255, 1);
+  --main-font-color-inverted: rgba(0, 0, 0, 0.9);
   --button-border-radius: 18px;
   --header-height: 90px;
   --header-logo-width: 42px;
@@ -22,31 +22,4 @@
   --footer-height: 90px;
   --card-border-radius: 16px;
   --max-width: 400px;
-
-  // dark mode
-  .dark {
-    --bg-color: #181111;
-    --secondary-bg-color: #231616;
-    --primary-color: #e0a714;
-    --secondary-color: #e0d214;
-    --tertiary-color: #fc9a63;
-    --success-color: #22c55e;
-    --disabled-color: #d1d5db;
-    --footer-bg-color: #181111;
-    --error-color: #ef4444;
-    --grey-color: #9ca3af;
-    --icon-grey-color: #d1d5db;
-    --light-grey-color: #4f3535;
-    --backdrop-color: rgba(255, 255, 255, 0.1);
-    --main-font-size: 16px;
-    --main-font-color: rgba(255, 255, 255, 1);
-    --main-font-color-inverted: rgba(0, 0, 0, 0.9);
-    --button-border-radius: 18px;
-    --header-height: 90px;
-    --header-logo-width: 42px;
-    --header-logo-height: 42px;
-    --footer-height: 90px;
-    --card-border-radius: 16px;
-    --max-width: 400px;
-  }
 }

@@ -21,13 +21,13 @@ import { validateUrl } from '@utils/misc';
 
 const Settings: NextPage = () => {
   const { updateChainNetwork } = useContext(WalletContext);
-  const { theme, updateTheme } = useContext(ThemeContext);
+  // const { theme, updateTheme } = useContext(ThemeContext);
   const { chain } = useContext(ChainContext);
 
   const handleChainClick = (e: ChangeEvent<HTMLInputElement>) =>
     updateChainNetwork(e.target.checked ? 'testnet' : 'mainnet');
 
-  const handleThemeClick = (e: ChangeEvent<HTMLInputElement>) => updateTheme(e.target.checked ? 'dark' : 'light');
+  // const handleThemeClick = (e: ChangeEvent<HTMLInputElement>) => updateTheme(e.target.checked ? 'dark' : 'light');
 
   return (
     <>
@@ -57,13 +57,13 @@ const Settings: NextPage = () => {
           </Card>
         </Anchor>
         <>
-          <div className={utilsStyles.spacer2} />
+          {/* <div className={utilsStyles.spacer2} />
           <p className={styles.label}>theme</p>
           <Card className={utilsStyles.rowAlignSpaceBetween} size={CARD_SIZE.large}>
             <p className={styles.settingLabel}>light</p>
             <ToggleSwitch name='theme' toggled={theme === 'dark'} onToggle={handleThemeClick} />
             <p className={styles.settingLabel}>dark</p>
-          </Card>
+          </Card> */}
         </>
 
         {EnableDeveloperMode && (

@@ -8,22 +8,22 @@ export const ThemeContext = createContext({
 });
 
 export const ThemeProvider = ({ children }: HTMLAttributes<HTMLDivElement>) => {
-  const [theme, setTheme] = useState<Theme>('light');
+  const [theme, setTheme] = useState<Theme>('dark');
   const [loaded, setLoaded] = useState<boolean>(false);
 
   const updateTheme = (newTheme: Theme) => {
-    if (newTheme !== theme) setTheme(newTheme);
+    // if (newTheme !== theme) setTheme(newTheme);
   };
 
-  useEffect(() => {
-    const persistedTheme = getLocalStorage('theme');
-    setLoaded(true);
-    if (persistedTheme) setTheme(persistedTheme as Theme);
-  }, []);
+  // useEffect(() => {
+  //   const persistedTheme = getLocalStorage('theme');
+  //   setLoaded(true);
+  //   if (persistedTheme) setTheme(persistedTheme as Theme);
+  // }, []);
 
-  useEffect(() => {
-    if (loaded) setLocalStorage('theme', theme);
-  }, [theme]);
+  // useEffect(() => {
+  //   if (loaded) setLocalStorage('theme', theme);
+  // }, [theme]);
 
   const value = {
     theme,
