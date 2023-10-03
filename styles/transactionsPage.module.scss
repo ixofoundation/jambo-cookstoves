@@ -1,0 +1,63 @@
+.historyTitle {
+  font-size: 17px;
+  margin: 0;
+  padding: 0 0 0 5px;
+  color: white;
+  font-weight: 400;
+}
+
+.transactionCard {
+  display: flex;
+  flex-direction: row;
+  margin-bottom: 5px;
+  background-color: var(--secondary-bg-color);
+
+  .transactionContent {
+    flex: 1;
+    padding: 0 10px;
+
+    .transactionCollection {
+      font-size: 14px;
+      margin: 0;
+      padding: 0 0 2px;
+      color: var(--grey-color);
+      font-weight: 300;
+    }
+
+    .transactionName {
+      font-size: 16px;
+      margin: 0;
+      padding: 0;
+      color: white;
+      font-weight: 400;
+    }
+  }
+
+  .transactionStatusWrapper {
+    .transactionStatusLabel {
+      text-align: right;
+      font-size: 14px;
+      margin: 0;
+      padding: 0 0 2px;
+      color: var(--grey-color);
+      font-weight: 300;
+    }
+
+    .transactionStatus {
+      text-align: right;
+      font-size: 16px;
+      margin: 0;
+      padding: 0;
+      color: white;
+      font-weight: 400;
+    }
+
+    .activeStatus {
+      color: var(--success-color);
+    }
+
+    .inactiveStatus {
+      color: var(--error-color);
+    }
+  }
+}

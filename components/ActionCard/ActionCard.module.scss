@@ -1,0 +1,29 @@
+.card {
+  max-width: 120px;
+  width: 120px;
+  min-width: 120px;
+  height: 120px;
+  margin: 15px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  .label {
+    text-align: center;
+    color: black;
+    margin: 0;
+    padding: 0 5px;
+    font-size: 17px;
+    font-weight: 500;
+  }
+}
+
+.inactive {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.active {
+  cursor: pointer;
+}

@@ -1,5 +1,5 @@
 import { DelegationResponse, Validator } from '@ixo/impactxclient-sdk/types/codegen/cosmos/staking/v1beta1/staking';
-import { createQueryClient, customQueries } from '@ixo/impactxclient-sdk';
+import { cosmos, createQueryClient, customQueries } from '@ixo/impactxclient-sdk';
 
 import { VALIDATOR_FILTER_KEYS as FILTERS } from '@constants/filters';
 import {
@@ -13,6 +13,7 @@ import { CURRENCY, CURRENCY_TOKEN } from 'types/wallet';
 import { QUERY_CLIENT } from 'types/query';
 import { filterValidators } from './filters';
 import { TOKEN_ASSET } from './currency';
+import { convertTimestampObjectToTimestamp } from './misc';
 
 export const initializeQueryClient = async (blockchainRpcUrl: string) => {
   const client = await createQueryClient(blockchainRpcUrl);
@@ -206,5 +207,43 @@ export const queryValidators = async (queryClient: QUERY_CLIENT) => {
   } catch (error) {
     console.error('queryValidators::', error);
     return [];
+  }
+};
+
+export const queryIidDocument = async (queryClient: QUERY_CLIENT, did: string) => {
+  try {
+    const res = await queryClient.ixo.iid.v1beta1.iidDocument({ id: did });
+    console.log('queryIidDocument::', did, res);
+    return res;
+  } catch (error) {
+    console.error('queryIidDocument::', error);
+    return undefined;
+  }
+};
+
+export const queryAllowances = async (queryClient: QUERY_CLIENT, grantee: string) => {
+  try {
+    const res = await queryClient.cosmos.feegrant.v1beta1.allowances({ grantee });
+    return res;
+  } catch (error) {
+    console.error('queryAllowances::', error);
+    return undefined;
+  }
+};
+
+export const queryGranterGrants = async (queryClient: QUERY_CLIENT, granter: string) => {
+  try {
+    const res = await queryClient.cosmos.authz.v1beta1.granterGrants({ granter });
+    return res.grants?.map((g) => ({
+      ...g,
+      expiration: convertTimestampObjectToTimestamp(g.expiration!),
+      authorization: {
+        ...g.authorization,
+        value: cosmos.authz.v1beta1.GenericAuthorization.decode(g.authorization!.value!),
+      },
+    }));
+  } catch (error) {
+    console.error('queryGranterGrants::', error);
+    return undefined;
   }
 };

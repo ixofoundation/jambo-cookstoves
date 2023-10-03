@@ -1,3 +1,4 @@
+import { ElementType } from 'react';
 import { useRouter } from 'next/router';
 
 import styles from './Footer.module.scss';
@@ -9,6 +10,7 @@ import ArrowLeft from '@icons/arrow_left.svg';
 import Correct from '@icons/correct.svg';
 import Wallet from '@icons/wallet.svg';
 import Touch from '@icons/touch.svg';
+import Home from '@icons/home.svg';
 // import useWindowDimensions from '@hooks/windowDimensions';
 import { backRoute, replaceRoute } from '@utils/router';
 
@@ -19,9 +21,12 @@ type FooterProps = {
   onCorrect?: (() => void) | null;
   correctLabel?: string;
   onForward?: (() => void) | null;
+  forwardIcon?: ElementType<any>;
   forwardLabel?: string;
   showAccountButton?: boolean;
   showActionsButton?: boolean;
+  showHomeButton?: boolean;
+  children?: any;
 };
 
 /**
@@ -37,9 +42,13 @@ const Footer = ({
   // forwardLabel,
   showAccountButton,
   showActionsButton,
+  showHomeButton,
+  children,
 }: FooterProps) => {
   // const { width } = useWindowDimensions();
   const { asPath } = useRouter();
+
+  if (children) return <footer className={styles.footer}>{children}</footer>;
 
   return (
     <footer className={styles.footer}>
@@ -55,6 +64,13 @@ const Footer = ({
               color={/^\/account/i.test(asPath) ? ICON_COLOR.white : ICON_COLOR.primary}
             />
             {/* {!!width && width > 425 && <p className={styles.label}>Account</p>} */}
+          </ButtonRound>
+        </Anchor>
+      )}
+      {showHomeButton && (
+        <Anchor href='/' active={asPath !== '/'}>
+          <ButtonRound size={BUTTON_ROUND_SIZE.large} color={BUTTON_ROUND_COLOR.primary}>
+            <ColoredIcon icon={Home} size={24} color={ICON_COLOR.bg} />
           </ButtonRound>
         </Anchor>
       )}

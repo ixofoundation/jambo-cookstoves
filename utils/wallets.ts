@@ -17,6 +17,15 @@ export const shortenAddress = (address: string) =>
   (address?.length && address.length > 19 ? address.slice(0, 12).concat('...').concat(address.slice(-7)) : address) ??
   '';
 
+export const veryShortAddress = (input: string): string => {
+  if (input.length <= 9) return input; // Return the input string as-is if it's 9 characters or shorter.
+
+  const firstSixChars = input.slice(0, 8);
+  const lastThreeChars = input.slice(-5);
+
+  return `${firstSixChars}...${lastThreeChars}`;
+};
+
 // TODO: provide denom as 5th param to only group for the denom
 export const groupWalletAssets = (
   balances: CURRENCY_TOKEN[],
@@ -102,16 +111,17 @@ export const broadCastMessages = async (
   fee: TRX_FEE_OPTION,
   suggestedFeeDenom: string,
   chain: KEPLR_CHAIN_INFO_TYPE,
+  feeGranter?: string,
 ): Promise<string | null> => {
   if (!chain) return null;
   const feeDenom = getFeeDenom(suggestedFeeDenom, chain.feeCurrencies as TOKEN_ASSET[]);
   switch (wallet.walletType) {
     case WALLET_TYPE.keplr:
-      return await keplrBroadCastMessage(msgs, memo, fee, feeDenom, chain as ChainInfo);
+      return await keplrBroadCastMessage(msgs, memo, fee, feeDenom, chain as ChainInfo, feeGranter);
     case WALLET_TYPE.opera:
-      return await operaBroadCastMessage(msgs, memo, fee, feeDenom, chain as ChainInfo);
+      return await operaBroadCastMessage(msgs, memo, fee, feeDenom, chain as ChainInfo, feeGranter);
     case WALLET_TYPE.walletConnect:
-      return await WCBroadCastMessage(msgs, memo, fee, feeDenom, chain as ChainInfo);
+      return await WCBroadCastMessage(msgs, memo, fee, feeDenom, chain as ChainInfo, feeGranter);
     default:
       return null;
   }

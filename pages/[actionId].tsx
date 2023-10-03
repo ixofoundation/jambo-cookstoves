@@ -1,6 +1,9 @@
 import { useState, useEffect, useContext } from 'react';
 import type { GetStaticPaths, NextPage, GetStaticPropsResult, GetStaticPropsContext } from 'next';
+import cls from 'classnames';
 
+import utilsStyles from '@styles/utils.module.scss';
+import styles from '@styles/stepsPages.module.scss';
 import config from '@constants/config.json';
 import { StepDataType, STEP, STEPS } from 'types/steps';
 import EmptySteps from '@steps/EmptySteps';
@@ -16,6 +19,13 @@ import Head from '@components/Head/Head';
 import { VALIDATOR_AMOUNT_CONFIGS, VALIDATOR_CONFIGS } from '@constants/validatorConfigs';
 import ValidatorRewards from '@steps/ClaimRewards';
 import { VALIDATOR_AMOUNT_CONFIG } from 'types/validators';
+import Wallets from '@components/Wallets/Wallets';
+import Footer from '@components/Footer/Footer';
+import Header from '@components/Header/Header';
+import LedgerDid from '@steps/LedgerDID';
+import DidAssignEntity from '@steps/DidAssignEntity';
+import Loader from '@components/Loader/Loader';
+import ApproveEntityAuthz from '@steps/ApproveEntityAuthz';
 
 type ActionPageProps = {
   actionData: ACTION;
@@ -31,12 +41,18 @@ const ActionExecution: NextPage<ActionPageProps> = ({ actionData }) => {
     setAction(actionData);
   }, [actionData]);
 
-  function handleOnNext<T>(data: StepDataType<T>) {
-    setAction((a) =>
-      !a ? a : { ...a, steps: a.steps.map((step, index) => (index === count ? { ...step, data } : step)) },
-    );
-    if (count + 1 === action?.steps.length) return replaceRoute('/');
-    setCount((c) => c + 1);
+  function prepareOnNext<T>(stepId: STEPS) {
+    return function handleOnNext(data: StepDataType<T>) {
+      setAction((a) =>
+        !a ? a : { ...a, steps: a.steps.map((step, index) => (index === count ? { ...step, data } : step)) },
+      );
+      if (count + 1 === action?.steps.length) return replaceRoute('/');
+      setCount((c) => {
+        const currentStepId = action?.steps[c].id;
+        if (stepId === currentStepId) return c + 1;
+        return c;
+      });
+    };
   }
 
   const handleBack = () => {
@@ -93,7 +109,7 @@ const ActionExecution: NextPage<ActionPageProps> = ({ actionData }) => {
       case STEPS.get_receiver_address:
         return (
           <ReceiverAddress
-            onSuccess={handleOnNext<STEPS.get_receiver_address>}
+            onSuccess={prepareOnNext<STEPS.get_receiver_address>(step?.id as STEPS)}
             onBack={handleBack}
             data={
               (step.data as StepDataType<STEPS.get_receiver_address>) ?? {
@@ -110,7 +126,7 @@ const ActionExecution: NextPage<ActionPageProps> = ({ actionData }) => {
       case STEPS.get_validator_redelegate:
         return (
           <ValidatorAddress
-            onSuccess={handleOnNext<STEPS.get_validator_delegate>}
+            onSuccess={prepareOnNext<STEPS.get_validator_delegate>(step?.id as STEPS)}
             onBack={handleBack}
             data={step.data as StepDataType<STEPS.get_validator_delegate>}
             header={action?.name}
@@ -128,7 +144,7 @@ const ActionExecution: NextPage<ActionPageProps> = ({ actionData }) => {
       case STEPS.select_token_and_amount:
         return (
           <DefineAmountToken
-            onSuccess={handleOnNext<STEPS.select_token_and_amount>}
+            onSuccess={prepareOnNext<STEPS.select_token_and_amount>(step?.id as STEPS)}
             onBack={handleBack}
             data={
               (step.data as StepDataType<STEPS.select_token_and_amount>) ?? {
@@ -144,7 +160,7 @@ const ActionExecution: NextPage<ActionPageProps> = ({ actionData }) => {
       case STEPS.select_amount_redelegate:
         return (
           <DefineAmountDelegate
-            onSuccess={handleOnNext<STEPS.select_amount_delegate>}
+            onSuccess={prepareOnNext<STEPS.select_amount_delegate>(step?.id as STEPS)}
             onBack={handleBack}
             data={step.data as StepDataType<STEPS.select_amount_delegate>}
             header={action?.name}
@@ -164,7 +180,7 @@ const ActionExecution: NextPage<ActionPageProps> = ({ actionData }) => {
       case STEPS.distribution_MsgWithdrawDelegatorReward:
         return (
           <ValidatorRewards
-            onSuccess={handleOnNext<STEPS.review_and_sign>}
+            onSuccess={prepareOnNext<STEPS.review_and_sign>(step?.id as STEPS)}
             onBack={handleBack}
             data={step.data as StepDataType<STEPS.get_validator_delegate>}
             header={action?.name}
@@ -178,13 +194,43 @@ const ActionExecution: NextPage<ActionPageProps> = ({ actionData }) => {
       case STEPS.staking_MsgRedelegate:
         return (
           <ReviewAndSign
-            onSuccess={handleOnNext<STEPS.review_and_sign>}
+            onSuccess={prepareOnNext<STEPS.review_and_sign>(step?.id as STEPS)}
             handleNextMultiSend={handleNextMultiSend}
             deleteMultiSend={handleDeleteMultiSend}
             onBack={handleBack}
             steps={action!.steps}
             header={action?.name}
             message={step.id}
+          />
+        );
+      case STEPS.iid_MsgCreateIidDocument:
+        return (
+          <LedgerDid
+            onSuccess={prepareOnNext<STEPS.iid_MsgCreateIidDocument>(step?.id as STEPS)}
+            onBack={handleBack}
+            header={action?.name}
+            data={step.data as StepDataType<STEPS.iid_MsgCreateIidDocument>}
+          />
+        );
+      case STEPS.did_assign_entity:
+        return (
+          <DidAssignEntity
+            onSuccess={prepareOnNext<STEPS.did_assign_entity>(step?.id as STEPS)}
+            onBack={handleBack}
+            header={action?.name}
+            // data={step.data as StepDataType<STEPS.did_assign_entity>}
+          />
+        );
+      case STEPS.approve_entity_authz:
+        return (
+          <ApproveEntityAuthz
+            onSuccess={prepareOnNext<STEPS.approve_entity_authz>(step?.id as STEPS)}
+            onBack={handleBack}
+            header={action?.name}
+            data={
+              action?.steps.find((step) => step.id === STEPS.did_assign_entity)
+                ?.data as unknown as StepDataType<STEPS.did_assign_entity>
+            }
           />
         );
       default:
@@ -194,10 +240,25 @@ const ActionExecution: NextPage<ActionPageProps> = ({ actionData }) => {
 
   return (
     <>
-      <Head title={actionData.name} description={actionData.description} />
+      <Head title={config.siteName} description={actionData.description} />
 
       {!signedIn ? (
-        <EmptySteps signedIn={false} />
+        <>
+          <Header />
+          <main className={cls(utilsStyles.main, utilsStyles.columnJustifyCenter, styles.stepContainer)}>
+            <div className={utilsStyles.spacer3} />
+            <Wallets />
+            <Footer onBackUrl='/' backLabel='Home' />
+            <div className={utilsStyles.spacer3} />
+          </main>
+        </>
+      ) : wallet?.walletType && !wallet?.user?.address ? (
+        <>
+          <Header />
+          <main className={cls(utilsStyles.main, utilsStyles.columnCenter)}>
+            <Loader size={30} />
+          </main>
+        </>
       ) : (action?.steps?.length ?? 0) < 1 ? (
         <EmptySteps />
       ) : (

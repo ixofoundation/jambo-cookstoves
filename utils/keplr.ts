@@ -41,6 +41,7 @@ export const keplrBroadCastMessage = async (
   fee: TRX_FEE_OPTION,
   feeDenom: string,
   chainInfo: ChainInfo,
+  feeGranter?: string,
 ): Promise<string | null> => {
   try {
     const [accounts, offlineSigner] = await connectKeplrAccount(chainInfo);
@@ -56,6 +57,7 @@ export const keplrBroadCastMessage = async (
       fee,
       feeDenom,
       memo,
+      feeGranter,
     };
     const result = await sendTransaction(client, address, payload);
 

@@ -1,4 +1,4 @@
-import { HTMLAttributes } from 'react';
+import { HTMLAttributes, useContext, useState } from 'react';
 import cls from 'classnames';
 
 import utilsStyles from '@styles/utils.module.scss';
@@ -6,20 +6,27 @@ import styles from './Wallets.module.scss';
 import ColoredIcon, { ICON_COLOR } from '@components/ColoredIcon/ColoredIcon';
 import WalletCard from '@components/CardWallet/CardWallet';
 import WalletImg from '@icons/wallet.svg';
-import { getWalletConnect } from '@utils/walletConnect';
 import { getOpera } from '@utils/opera';
 import { getKeplr } from '@utils/keplr';
 import { WALLETS } from '@constants/wallet';
 import { WALLET_TYPE } from 'types/wallet';
+import { WalletContext } from '@contexts/wallet';
 
-type WalletsProps = {
-  onSelected: (type: WALLET_TYPE) => void;
-} & HTMLAttributes<HTMLDivElement>;
+type WalletsProps = {} & HTMLAttributes<HTMLDivElement>;
 
-const Wallets = ({ onSelected, className, ...other }: WalletsProps) => {
+const Wallets = ({ className, ...other }: WalletsProps) => {
+  const [selectedWallet, setSelectedWallet] = useState<WALLET_TYPE | null>(null);
+
   const keplrWallet = getKeplr();
   const operaWallet = getOpera();
-  const walletConnect = getWalletConnect();
+  const walletConnect = false;
+
+  const { updateWalletType } = useContext(WalletContext);
+
+  const handleOnSelect = (type: WALLET_TYPE) => () => {
+    setSelectedWallet(type);
+    setTimeout(() => updateWalletType(type), 1000);
+  };
 
   return (
     <div className={cls(styles.wallets, className)} {...other}>
@@ -32,21 +39,24 @@ const Wallets = ({ onSelected, className, ...other }: WalletsProps) => {
             <WalletCard
               name={WALLETS.keplr.name}
               img={WALLETS.keplr.img}
-              onClick={() => onSelected(WALLET_TYPE.keplr)}
+              onClick={handleOnSelect(WALLET_TYPE.keplr)}
+              selected={selectedWallet === WALLET_TYPE.keplr}
             />
           )}
           {!!operaWallet && (
             <WalletCard
               name={WALLETS.opera.name}
               img={WALLETS.opera.img}
-              onClick={() => onSelected(WALLET_TYPE.opera)}
+              onClick={handleOnSelect(WALLET_TYPE.opera)}
+              selected={selectedWallet === WALLET_TYPE.opera}
             />
           )}
           {!!walletConnect && (
             <WalletCard
               name={WALLETS.walletConnect.name}
               img={WALLETS.walletConnect.img}
-              onClick={() => onSelected(WALLET_TYPE.walletConnect)}
+              onClick={handleOnSelect(WALLET_TYPE.walletConnect)}
+              selected={selectedWallet === WALLET_TYPE.walletConnect}
             />
           )}
         </>

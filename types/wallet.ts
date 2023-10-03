@@ -63,3 +63,23 @@ export type TOKEN_BALANCE = {
   undelegating: number;
   token: CURRENCY_TOKEN;
 };
+
+export type ImpactTokenBatch = {
+  tokenId: string;
+  collection: string;
+  amount: number;
+  minted: number;
+  retired: number;
+};
+
+export type ImpactTokens = {
+  contractAddress: string;
+  description: string;
+  image: string;
+  tokens: ImpactTokenBatch[];
+};
+
+export type ImpactToken = {
+  id: string;
+  amount: string;
+};

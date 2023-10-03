@@ -12,8 +12,8 @@ export enum STEPS {
   select_amount_delegate = 'select_amount_delegate',
   select_amount_undelegate = 'select_amount_undelegate',
   select_amount_redelegate = 'select_amount_redelegate',
-  define_amount = 'define_amount',
-  send_token_to_receiver = 'send_token_to_receiver',
+  did_assign_entity = 'did_assign_entity',
+  approve_entity_authz = 'approve_entity_authz',
   review_and_sign = 'review_and_sign',
   bank_MsgSend = 'bank_MsgSend',
   bank_MsgMultiSend = 'bank_MsgMultiSend',
@@ -21,7 +21,7 @@ export enum STEPS {
   staking_MsgUndelegate = 'staking_MsgUndelegate',
   staking_MsgRedelegate = 'staking_MsgRedelegate',
   distribution_MsgWithdrawDelegatorReward = 'distribution_MsgWithdrawDelegatorReward',
-  claim = 'claim',
+  iid_MsgCreateIidDocument = 'iid_MsgCreateIidDocument',
 }
 
 export type STEP = {
@@ -51,8 +51,8 @@ export const steps: { [key in STEPS]: STEP } = {
   [STEPS.select_amount_delegate]: { id: STEPS.select_amount_delegate, name: 'Define amount to delegate' },
   [STEPS.select_amount_undelegate]: { id: STEPS.select_amount_undelegate, name: 'Define amount to undelegate' },
   [STEPS.select_amount_redelegate]: { id: STEPS.select_amount_redelegate, name: 'Define amount to redelegate' },
-  [STEPS.define_amount]: { id: STEPS.define_amount, name: 'Define amount' },
-  [STEPS.send_token_to_receiver]: { id: STEPS.send_token_to_receiver, name: 'Send token to receiver' },
+  [STEPS.did_assign_entity]: { id: STEPS.did_assign_entity, name: 'Assign Supamoto' },
+  [STEPS.approve_entity_authz]: { id: STEPS.approve_entity_authz, name: 'Approve Supamoto' },
   [STEPS.review_and_sign]: { id: STEPS.review_and_sign, name: 'Review and sign' },
   [STEPS.bank_MsgSend]: { id: STEPS.bank_MsgSend, name: 'Review and sign' },
   [STEPS.bank_MsgMultiSend]: { id: STEPS.bank_MsgMultiSend, name: 'Review and sign' },
@@ -63,7 +63,7 @@ export const steps: { [key in STEPS]: STEP } = {
     id: STEPS.distribution_MsgWithdrawDelegatorReward,
     name: 'Review and sign',
   },
-  [STEPS.claim]: { id: STEPS.claim, name: 'Claim' },
+  [STEPS.iid_MsgCreateIidDocument]: { id: STEPS.iid_MsgCreateIidDocument, name: 'Ledger DID' },
 };
 
 export type ReviewStepsTypes =
@@ -99,13 +99,16 @@ interface Select_tokens_and_amounts {
   data: Select_token_and_amount[];
   currentIndex: number;
 }
-interface Define_amount {
-  amount: number;
-}
-interface Send_token_to_receiver {
+interface Review_and_sign {
   done: boolean;
 }
-interface Review_and_sign {
+interface Ledger_did {
+  did: string;
+}
+interface Did_assign_entity {
+  entityDid: string;
+}
+interface Approve_entity_authz {
   done: boolean;
 }
 
@@ -116,8 +119,7 @@ export type AllStepDataTypes =
   | Select_token_and_amount
   | Select_tokens_and_amounts
   | Check_user_balance
-  | Define_amount
-  | Send_token_to_receiver
+  | Ledger_did
   | Review_and_sign;
 
 export type StepDataType<T> = T extends STEPS.check_user_balance
@@ -140,14 +142,14 @@ export type StepDataType<T> = T extends STEPS.check_user_balance
   ? Select_token_and_amount
   : T extends STEPS.select_amount_redelegate
   ? Select_token_and_amount
-  : T extends STEPS.define_amount
-  ? Define_amount
-  : T extends STEPS.send_token_to_receiver
-  ? Send_token_to_receiver
+  : T extends STEPS.did_assign_entity
+  ? Did_assign_entity
+  : T extends STEPS.approve_entity_authz
+  ? Approve_entity_authz
+  : T extends STEPS.iid_MsgCreateIidDocument
+  ? Ledger_did
   : T extends STEPS.review_and_sign
   ? Review_and_sign
   : T extends STEPS.distribution_MsgWithdrawDelegatorReward
-  ? Review_and_sign
-  : T extends STEPS.claim
   ? Review_and_sign
   : never;

@@ -71,4 +71,20 @@
       }
     }
   }
+
+  &.withErrorColor {
+    & svg {
+      & path {
+        fill: var(--error-color);
+      }
+    }
+  }
+
+  &.withBgColor {
+    & svg {
+      & path {
+        fill: var(--bg-color);
+      }
+    }
+  }
 }

@@ -1,11 +1,13 @@
 :root {
   --bg-color: white;
+  --secondary-bg-color: #f0f0f0;
   --primary-color: #1db3d3;
   --secondary-color: #1297b4;
   --tertiary-color: #fc9a63;
   --success-color: #22c55e;
   --disabled-color: #d1d5db;
   --footer-bg-color: white;
+  --error-color: #ef4444;
   --grey-color: #9ca3af;
   --icon-grey-color: #d1d5db;
   --light-grey-color: #f0f0f0;
@@ -23,16 +25,18 @@
 
   // dark mode
   .dark {
-    --bg-color: #0e2235;
-    --primary-color: #1db3d3;
-    --secondary-color: #1297b4;
+    --bg-color: #181111;
+    --secondary-bg-color: #231616;
+    --primary-color: #e0a714;
+    --secondary-color: #e0d214;
     --tertiary-color: #fc9a63;
     --success-color: #22c55e;
     --disabled-color: #d1d5db;
-    --footer-bg-color: #0e2235;
+    --footer-bg-color: #181111;
+    --error-color: #ef4444;
     --grey-color: #9ca3af;
     --icon-grey-color: #d1d5db;
-    --light-grey-color: #1e686c;
+    --light-grey-color: #4f3535;
     --backdrop-color: rgba(255, 255, 255, 0.1);
     --main-font-size: 16px;
     --main-font-color: rgba(255, 255, 255, 1);

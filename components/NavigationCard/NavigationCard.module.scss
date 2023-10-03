@@ -1,0 +1,16 @@
+.card {
+  padding-top: 15px;
+  padding-bottom: 15px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+
+  .label {
+    display: inline-block;
+    margin: 0;
+    padding: 0 10px;
+    font-size: 20px;
+    font-weight: 300;
+  }
+}

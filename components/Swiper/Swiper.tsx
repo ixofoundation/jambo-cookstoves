@@ -48,9 +48,6 @@ const CustomSwiper = ({ actions, swiper = true }: SwiperProps) => {
                 <div className={styles.actionImage} />
               )}
             </div>
-
-            <h2 className={styles.actionName}>{action.name}</h2>
-            <p className={styles.actionDescription}>{action.description}</p>
           </div>
         ))}
       </div>
@@ -104,8 +101,6 @@ const CustomSwiper = ({ actions, swiper = true }: SwiperProps) => {
           </div>
         ))
       )}
-      <h2 className={styles.actionName}>{selectedAction?.name}</h2>
-      <p className={styles.actionDescription}>{selectedAction?.description}</p>
     </div>
   );
 };

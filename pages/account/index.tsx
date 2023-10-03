@@ -69,7 +69,7 @@ const Account: NextPage = () => {
             <Loader size={50} />
           </>
         ) : (
-          <Wallets onSelected={updateWalletType} />
+          <Wallets />
         )}
       </main>
       <Footer showAccountButton showActionsButton />

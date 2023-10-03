@@ -1,0 +1,39 @@
+.wrapper {
+  // width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.stepperButton {
+  border-radius: 50%;
+  background-color: var(--primary-color);
+  padding: 11px;
+  align-items: center;
+  justify-content: center;
+}
+
+.step {
+  background-color: var(--light-grey-color);
+  border-radius: 50px;
+  padding: 0 22px;
+  height: 46px;
+  min-width: 170px;
+  margin: 0 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stepLabel {
+  display: inline-block;
+  color: var(--primary-color);
+  font-size: 16px;
+  margin: 0;
+  padding: 0;
+}
+
+.prefixIcon {
+  margin-right: 5px;
+}

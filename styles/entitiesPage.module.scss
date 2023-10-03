@@ -1,0 +1,55 @@
+.entityCard {
+  display: flex;
+  flex-direction: row;
+  margin-bottom: 5px;
+  background-color: var(--secondary-bg-color);
+
+  .entityContent {
+    flex: 1;
+    padding: 0 10px;
+
+    .entityCollection {
+      font-size: 14px;
+      margin: 0;
+      padding: 0 0 2px;
+      color: var(--grey-color);
+      font-weight: 300;
+    }
+
+    .entityName {
+      font-size: 16px;
+      margin: 0;
+      padding: 0;
+      color: white;
+      font-weight: 400;
+    }
+  }
+
+  .entityStatusWrapper {
+    .entityStatusLabel {
+      text-align: right;
+      font-size: 14px;
+      margin: 0;
+      padding: 0 0 2px;
+      color: var(--grey-color);
+      font-weight: 300;
+    }
+
+    .entityStatus {
+      text-align: right;
+      font-size: 16px;
+      margin: 0;
+      padding: 0;
+      color: white;
+      font-weight: 400;
+    }
+
+    .activeStatus {
+      color: var(--success-color);
+    }
+
+    .inactiveStatus {
+      color: var(--error-color);
+    }
+  }
+}

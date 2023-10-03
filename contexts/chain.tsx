@@ -1,4 +1,5 @@
 import { createContext, useState, useEffect, HTMLAttributes, useRef } from 'react';
+import { ApolloClient, ApolloProvider, DefaultOptions, InMemoryCache } from '@apollo/client';
 import { createQueryClient } from '@ixo/impactxclient-sdk';
 
 import Banner from '@components/Banner/Banner';
@@ -12,6 +13,19 @@ import {
 import { CHAIN_INFO_REQUEST, CHAIN_NETWORK_TYPE, KEPLR_CHAIN_INFO_TYPE } from 'types/chain';
 import { QUERY_CLIENT } from 'types/query';
 import { DefaultChainNetwork } from '@constants/chains';
+import { getBlockSyncGraphqlUrl } from '@utils/blocksync';
+import { GRAPHQL_CLIENT } from 'types/graphql';
+
+const defaultOptions: DefaultOptions = {
+  watchQuery: {
+    fetchPolicy: 'no-cache',
+    errorPolicy: 'ignore',
+  },
+  query: {
+    fetchPolicy: 'no-cache',
+    errorPolicy: 'all',
+  },
+};
 
 type CHAIN_STATE_TYPE = {
   chainId: string;
@@ -30,6 +44,7 @@ export const ChainContext = createContext({
   chainInfo: {} as KEPLR_CHAIN_INFO_TYPE | undefined,
   chains: [] as KEPLR_CHAIN_INFO_TYPE[],
   queryClient: undefined as QUERY_CLIENT | undefined,
+  graphqlClient: undefined as GRAPHQL_CLIENT | undefined,
   updateChainId: (callback?: Function) => (selectedChainId: string) => {},
   updateChainNetwork: (callback?: Function) => (selectedChainNetwork: CHAIN_NETWORK_TYPE) => {},
 });
@@ -38,6 +53,22 @@ export const ChainProvider = ({ children }: HTMLAttributes<HTMLDivElement>) => {
   const [chains, setChains] = useState<CHAIN_INFO_REQUEST[]>([]);
   const [currentChain, setCurrentChain] = useState<CHAIN_STATE_TYPE>(DEFAULT_CHAIN);
   const queryClientRef = useRef<QUERY_CLIENT | undefined>();
+
+  const mainnetGraphqlClient = new ApolloClient({
+    uri: getBlockSyncGraphqlUrl('mainnet'),
+    cache: new InMemoryCache(),
+    defaultOptions,
+  });
+  const testnetGraphqlClient = new ApolloClient({
+    uri: getBlockSyncGraphqlUrl('testnet'),
+    cache: new InMemoryCache(),
+    defaultOptions,
+  });
+  const devnetGraphqlClient = new ApolloClient({
+    uri: getBlockSyncGraphqlUrl('devnet'),
+    cache: new InMemoryCache(),
+    defaultOptions,
+  });
 
   const updateCurrentChain = (newChain: any, override: boolean = false) => {
     if (override) setCurrentChain({ ...DEFAULT_CHAIN, ...newChain });
@@ -105,14 +136,30 @@ export const ChainProvider = ({ children }: HTMLAttributes<HTMLDivElement>) => {
     chain: currentChain,
     chainInfo: getChainInfoByChainId(chains, currentChain.chainId),
     queryClient: queryClientRef.current,
+    graphqlClient:
+      currentChain.chainNetwork === 'mainnet'
+        ? mainnetGraphqlClient
+        : currentChain.chainNetwork === 'testnet'
+        ? testnetGraphqlClient
+        : devnetGraphqlClient,
     updateChainId,
     updateChainNetwork,
   };
 
   return (
     <ChainContext.Provider value={value}>
-      {children}
-      <Banner label='TEST' display={currentChain.chainNetwork !== 'mainnet'}></Banner>
+      <ApolloProvider
+        client={
+          currentChain.chainNetwork === 'mainnet'
+            ? mainnetGraphqlClient
+            : currentChain.chainNetwork === 'testnet'
+            ? testnetGraphqlClient
+            : devnetGraphqlClient
+        }
+      >
+        {children}
+        <Banner label='TEST' display={currentChain.chainNetwork !== 'mainnet'}></Banner>
+      </ApolloProvider>
     </ChainContext.Provider>
   );
 };

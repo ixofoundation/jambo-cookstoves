@@ -2,7 +2,6 @@ import { HTMLAttributes } from 'react';
 import cls from 'classnames';
 
 import styles from './CardWallet.module.scss';
-import Image from 'next/image';
 import Card from '@components/Card/Card';
 import ImageWithFallback from '@components/ImageFallback/ImageFallback';
 
@@ -12,6 +11,7 @@ type WalletCardProps = {
   name?: string;
   imgWidth?: number;
   imgHeight?: number;
+  selected?: boolean;
 } & HTMLAttributes<HTMLDivElement>;
 
 export const WalletCard = ({
@@ -22,11 +22,12 @@ export const WalletCard = ({
   name,
   imgWidth = 40,
   imgHeight = 40,
+  selected = false,
   ...other
 }: WalletCardProps) => {
   return (
     // @ts-ignore
-    <Card className={cls(styles.walletCard, className)} {...other}>
+    <Card className={cls(styles.walletCard, className, selected ? styles.selected : styles.unselected)} {...other}>
       {Img ? (
         <Img width={imgWidth} height={imgHeight} />
       ) : img ? (

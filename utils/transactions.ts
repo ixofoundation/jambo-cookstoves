@@ -1,11 +1,15 @@
-import { cosmos } from '@ixo/impactxclient-sdk';
 import { Coin } from '@ixo/impactxclient-sdk/types/codegen/cosmos/base/v1beta1/coin';
+import { cosmos, customMessages, ixo } from '@ixo/impactxclient-sdk';
+import { KeyTypes } from '@ixo/impactxclient-sdk/types/messages/iid';
+import { StdFee } from '@cosmjs/stargate';
 
-import { TRX_FEE, TRX_FEE_OPTION, TRX_MSG } from 'types/transactions';
+import { TRX_FEE_OPTION, TRX_MSG } from 'types/transactions';
+import { Grant } from '@ixo/impactxclient-sdk/types/codegen/cosmos/authz/v1beta1/authz';
+import { ImpactToken } from 'types/wallet';
 
 export const defaultTrxFeeOption: TRX_FEE_OPTION = 'average';
 
-export const defaultTrxFee: TRX_FEE = {
+export const defaultTrxFee: StdFee = {
   amount: [{ amount: String(5000), denom: 'uixo' }],
   gas: String(300000),
 };
@@ -150,3 +154,111 @@ export const generateWithdrawRewardTrx = ({
     validatorAddress,
   }),
 });
+
+export const generateCreateIidTrx = ({
+  did,
+  pubkey,
+  address,
+  keyType = 'secp',
+}: {
+  did: string;
+  pubkey: Uint8Array;
+  address: string;
+  keyType?: KeyTypes;
+}) => ({
+  typeUrl: '/ixo.iid.v1beta1.MsgCreateIidDocument',
+  value: ixo.iid.v1beta1.MsgCreateIidDocument.fromPartial({
+    id: did,
+    verifications: customMessages.iid.createIidVerificationMethods({
+      did,
+      pubkey,
+      address,
+      controller: did,
+      type: keyType,
+    }),
+    signer: address,
+    controllers: [did],
+  }),
+});
+
+export const generateGrantEntityAccountAuthzTrx = ({
+  entityDid,
+  owner,
+  name,
+  granteeAddress,
+  grant,
+}: {
+  entityDid: string;
+  owner: string;
+  name: string;
+  granteeAddress: string;
+  grant: Grant;
+}) => ({
+  typeUrl: '/ixo.entity.v1beta1.MsgGrantEntityAccountAuthz',
+  value: ixo.entity.v1beta1.MsgGrantEntityAccountAuthz.fromPartial({
+    id: entityDid,
+    ownerAddress: owner,
+    name,
+    granteeAddress,
+    grant,
+  }),
+});
+
+export const generateGenericAuthorizationTrx = ({ msg }: { msg: string }, encode = false) => {
+  const value = cosmos.authz.v1beta1.GenericAuthorization.fromPartial({
+    msg,
+  });
+  return {
+    typeUrl: '/cosmos.authz.v1beta1.GenericAuthorization',
+    value: encode ? cosmos.authz.v1beta1.GenericAuthorization.encode(value).finish() : value,
+  };
+};
+
+export const generateAuthzGrantTrx = ({
+  granter,
+  grantee,
+  grant,
+}: {
+  granter: string;
+  grantee: string;
+  grant: Grant;
+}) => ({
+  typeUrl: '/cosmos.authz.v1beta1.MsgGrant',
+  value: cosmos.authz.v1beta1.MsgGrant.fromPartial({
+    granter,
+    grantee,
+    grant,
+  }),
+  // value: grant,
+});
+
+export const generateTransferTokenTrx = (
+  {
+    owner,
+    recipient,
+    tokens,
+  }: {
+    owner: string;
+    recipient: string;
+    tokens: ImpactToken[];
+  },
+  encode = false,
+) => {
+  const value = ixo.token.v1beta1.MsgTransferToken.fromPartial({
+    owner,
+    recipient,
+    tokens: tokens.map((b) =>
+      ixo.token.v1beta1.TokenBatch.fromPartial({
+        id: b.id,
+        amount: (b?.amount ?? 0).toString(),
+      }),
+    ),
+  });
+
+  console.log('value', value);
+
+  return {
+    typeUrl: '/ixo.token.v1beta1.MsgTransferToken',
+    value: encode ? ixo.token.v1beta1.MsgTransferToken.encode(value).finish() : value,
+  };
+};

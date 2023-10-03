@@ -13,6 +13,8 @@ export enum ICON_COLOR {
   grey = 'withGreyColor',
   iconGrey = 'withIconGreyColor',
   lightGrey = 'withLightGreyColor',
+  error = 'withErrorColor',
+  bg = 'withBgColor',
 }
 
 type ColoredIconProps = {

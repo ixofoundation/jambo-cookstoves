@@ -150,3 +150,26 @@
 .plusIcon {
   font-size: 1.5rem;
 }
+
+.qrWrapper {
+  padding: var(--button-border-radius);
+  border-radius: var(--button-border-radius);
+  background-color: white;
+}
+
+.relativeContainer {
+  position: relative;
+
+  .subIcon {
+    position: absolute;
+    top: -20px;
+    right: -20px;
+  }
+}
+
+.finePrint {
+  text-align: center;
+  font-size: 12px;
+  margin: 0 20px;
+  padding: 0;
+}

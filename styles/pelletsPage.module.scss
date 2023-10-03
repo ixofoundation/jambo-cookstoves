@@ -1,0 +1,68 @@
+.button {
+  width: 100%;
+  max-width: 300px;
+  border-radius: 50px;
+  height: 60px;
+  margin: 5px 0;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--light-grey-color);
+  color: var(--primary-color);
+
+  p {
+    margin: 0 0 0 5px;
+    padding: 0;
+    font-size: 16px;
+    font-weight: 400;
+  }
+
+  &.error {
+    p {
+      color: var(--error-color);
+    }
+  }
+
+  &.primary {
+    background-color: var(--primary-color);
+    color: var(--light-grey-color);
+  }
+
+  &.original {
+    background-color: var(--light-grey-color);
+    color: var(--primary-color);
+  }
+
+  &.disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+
+  &.enabled {
+    cursor: pointer;
+  }
+}
+
+.successMessage {
+  color: white;
+  text-align: center;
+  padding: 0;
+  margin: 0;
+  font-size: 16px;
+  line-height: 22px;
+  font-weight: 500;
+}
+
+.subSuccessMessage {
+  color: var(--disabled-color);
+  font-size: 15px;
+  text-align: center;
+  font-weight: 400;
+}
+
+.checkIcon {
+  position: absolute;
+  bottom: 40px;
+  right: 40px;
+}

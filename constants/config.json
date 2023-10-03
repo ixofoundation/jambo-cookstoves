@@ -1,7 +1,7 @@
 {
-  "siteName": "config.siteName",
+  "siteName": "SupaMoto",
   "siteUrl": "config.siteUrl",
-  "siteTitleMeta": "config.siteTitleMeta",
+  "siteTitleMeta": "SupaMoto dApp",
   "siteDescriptionMeta": "config.siteDescriptionMeta",
   "fontUrl": "https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap",
   "fontName": "Roboto",
@@ -9,122 +9,27 @@
   "headerShowLogo": true,
   "about": "config.about",
   "termsAndConditions": "https://my.jambo.earth/legal/termsOfUse",
+  "account": "ixo12p2uww9dukmdy89yn4qmu3x0w5rpn4adwp7mtv",
   "actions": [
     {
-      "id": "eKXPPhewkJDLbE1bq1iboz",
+      "id": "7f0cc7a072d514b38cb90bdf2e215901",
       "steps": [
         {
-          "id": "select_token_and_amount",
-          "name": "Select token and amount"
+          "id": "iid_MsgCreateIidDocument",
+          "name": "Ledger DID"
         },
         {
-          "id": "get_receiver_address",
-          "name": "Get receiver address"
+          "id": "did_assign_entity",
+          "name": "Assign Stove"
         },
         {
-          "id": "bank_MsgSend",
-          "name": "Review and sign"
+          "id": "approve_entity_authz",
+          "name": "Approve Stove"
         }
       ],
-      "name": "Send",
+      "name": "Free Cookstove",
       "description": "Crypto Send",
-      "image": "eKXPPhewkJDLbE1bq1iboa.png"
-    },
-    {
-      "id": "eKXPPhewkJDLbE1bq1ib78",
-      "steps": [
-        {
-          "id": "select_token_and_amount",
-          "name": "Select token and amount"
-        },
-        {
-          "id": "get_receiver_address",
-          "name": "Get receiver address"
-        },
-        {
-          "id": "bank_MsgMultiSend",
-          "name": "Review and sign"
-        }
-      ],
-      "name": "Multi Send",
-      "description": "Crypto Send",
-      "image": "eKXPPhewkJDLbE1bq1iboa.png"
-    },
-    {
-      "id": "eKXPPhewkJDLbE1bq1iboa",
-      "steps": [
-        {
-          "id": "get_validator_delegate",
-          "name": "Get validator address"
-        },
-        {
-          "id": "select_amount_delegate",
-          "name": "Define amount to delegate"
-        },
-        {
-          "id": "staking_MsgDelegate",
-          "name": "Review and sign"
-        }
-      ],
-      "name": "Delegate",
-      "description": "Delegate tokens on the IXO Network",
-      "image": "eKXPPhewkJDLbE1bq1iboa.png"
-    },
-    {
-      "id": "eKXPPhewkJDLbE1bq1ibob",
-      "steps": [
-        {
-          "id": "get_delegated_validator_undelegate",
-          "name": "Get delegation validator address"
-        },
-        {
-          "id": "select_amount_undelegate",
-          "name": "Define amount to undelegate"
-        },
-        {
-          "id": "staking_MsgUndelegate",
-          "name": "Review and sign"
-        }
-      ],
-      "name": "Undelegate",
-      "description": "Undelegate tokens on the IXO Network",
-      "image": "eKXPPhewkJDLbE1bq1ibob.png"
-    },
-    {
-      "id": "eKXPPhewkJDLbE1bq1iboc",
-      "steps": [
-        {
-          "id": "get_delegated_validator_redelegate",
-          "name": "Get delegation validator address"
-        },
-        {
-          "id": "select_amount_redelegate",
-          "name": "Define amount to redelegate"
-        },
-        {
-          "id": "get_validator_redelegate",
-          "name": "Get validator address"
-        },
-        {
-          "id": "staking_MsgRedelegate",
-          "name": "Review and sign"
-        }
-      ],
-      "name": "Redelegate",
-      "description": "Redelegate tokens on the IXO Network",
-      "image": "eKXPPhewkJDLbE1bq1iboc.png"
-    },
-    {
-      "id": "eKXPPhewkJDLbE1bq1ibod",
-      "steps": [
-        {
-          "id": "distribution_MsgWithdrawDelegatorReward",
-          "name": "Review and sign"
-        }
-      ],
-      "name": "Claim Rewards",
-      "description": "Claim rewards on your delegations.",
-      "image": "eKXPPhewkJDLbE1bq1ibod.png"
+      "image": "7f0cc7a072d514b38cb90bdf2e215901.png"
     }
   ]
 }

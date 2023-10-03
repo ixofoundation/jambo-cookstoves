@@ -38,6 +38,7 @@ export const operaBroadCastMessage = async (
   fee: TRX_FEE_OPTION,
   feeDenom: string,
   chainInfo: ChainInfo,
+  feeGranter?: string,
 ): Promise<string | null> => {
   try {
     const [accounts, offlineSigner] = await connectOperaAccount(chainInfo);
@@ -53,6 +54,7 @@ export const operaBroadCastMessage = async (
       fee,
       feeDenom,
       memo,
+      feeGranter,
     };
     const result = await sendTransaction(client, address, payload);
 

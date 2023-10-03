@@ -4,10 +4,16 @@
   padding-bottom: calc(var(--footer-height) + 20px); // For footer height
   height: 100%;
   min-height: 100vh;
+
+  .noFooter {
+    padding-bottom: 20px;
+  }
 }
 
 .centerText {
   text-align: center;
+  padding: 0;
+  margin: 0;
 }
 
 .column {
@@ -96,6 +102,22 @@
   height: 30px;
 }
 
+.spacer4 {
+  height: 40px;
+}
+
+.spacer5 {
+  height: 50px;
+}
+
+.spacer6 {
+  height: 60px;
+}
+
+.spacer7 {
+  height: 70px;
+}
+
 .spacerFlex {
   height: 30px;
   flex: 1;
@@ -118,5 +140,57 @@
     font-weight: 500;
     font-size: 1.1rem;
     margin-left: 12px;
+  }
+}
+
+.errorText {
+  text-align: center;
+  color: var(--error-color);
+  padding: 0;
+  margin: 0;
+}
+
+.successText {
+  text-align: center;
+  color: var(--success-color);
+  padding: 0;
+  margin: 0;
+}
+
+.relativePosition {
+  position: relative;
+}
+
+.absolutePosition {
+  position: absolute;
+}
+
+.homeRow {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  max-width: 280px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.longButton {
+  width: 100%;
+  max-width: 300px;
+  border-radius: 50px;
+  height: 60px;
+  margin: 5px 0;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--primary-color);
+  color: var(--bg-color);
+
+  p {
+    margin: 0 0 0 5px;
+    padding: 0;
+    font-size: 16px;
+    font-weight: 400;
   }
 }
