@@ -18,7 +18,7 @@ import PelletBagsIcon from '@icons/pellet_bags.svg';
 import PriceTagIcon from '@icons/price_tag.svg';
 import ThumbsUpIcon from '@icons/thumbs_up.svg';
 import { defaultTrxFeeOption, generateTransferTokenTrx } from '@utils/transactions';
-import { determineTokensSend } from '@utils/entity';
+import { countTokens, determineTokensSend } from '@utils/entity';
 import { queryAllowances } from '@utils/query';
 import Footer from '@components/Footer/Footer';
 
@@ -49,7 +49,7 @@ const Pellets: NextPage = () => {
   const { fetchAssets, carbon, wallet } = useContext(WalletContext);
   const { chainInfo, queryClient } = useContext(ChainContext);
 
-  const affordable = PELLETS[selected]?.carbon <= (carbon?.tokens?.reduce((r, t) => r + Number(t.amount), 0) ?? 0);
+  const affordable = PELLETS[selected]?.carbon <= countTokens(carbon?.tokens ?? []);
 
   useEffect(() => {
     fetchAssets();
@@ -62,7 +62,7 @@ const Pellets: NextPage = () => {
 
       const trx = generateTransferTokenTrx({
         owner: wallet.user!?.address!,
-        recipient: config.account,
+        recipient: process.env.NEXT_PUBLIC_PELLET_ADDRESS ?? '',
         tokens: determineTokensSend(carbon?.tokens ?? [], PELLETS[selected]?.carbon),
       });
 

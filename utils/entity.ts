@@ -63,6 +63,11 @@ export const determineTokensSend = (tokens: ImpactTokenBatch[], amount: number) 
   return offsetTokens;
 };
 
+export const countTokens = (tokens: ImpactTokenBatch[]) => {
+  if (!tokens.length || !Array.isArray(tokens)) return 0;
+  return tokens.reduce((acc, t) => acc + Number(t?.amount ?? 0), 0);
+};
+
 export const extractEntityName = (entity: Entity) => {
   const number = entity?.alsoKnownAs?.split('#')?.[1];
   let name = `SupaMoto #${number}`;

@@ -21,7 +21,6 @@ import ImageWithFallback from '@components/ImageFallback/ImageFallback';
 import Loader from '@components/Loader/Loader';
 import { extractEntityName } from '@utils/entity';
 import { backRoute } from '@utils/router';
-import config from '@constants/config.json';
 import { queryAllowances } from '@utils/query';
 
 type ApproveEntityAuthzProps = {
@@ -35,7 +34,7 @@ const ApproveEntityAuthz: FC<ApproveEntityAuthzProps> = ({ onSuccess, header, da
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>();
 
-  const { wallet, updateEntities, entities } = useContext(WalletContext);
+  const { wallet, fetchEntities, entities } = useContext(WalletContext);
   const { chainInfo, queryClient } = useContext(ChainContext);
 
   const entity = entities.find((e) => e.id === data.entityDid);
@@ -48,7 +47,7 @@ const ApproveEntityAuthz: FC<ApproveEntityAuthzProps> = ({ onSuccess, header, da
       const msgs = [
         generateAuthzGrantTrx({
           granter: wallet.user!.address!,
-          grantee: config.account,
+          grantee: process.env.NEXT_PUBLIC_AUTHZ_ADDRESS ?? '',
           grant: cosmos.authz.v1beta1.Grant.fromPartial({
             authorization: generateGenericAuthorizationTrx(
               {
@@ -62,7 +61,7 @@ const ApproveEntityAuthz: FC<ApproveEntityAuthzProps> = ({ onSuccess, header, da
           entityDid: entities[0]?.id!,
           owner: wallet.user!.address!,
           name: 'admin',
-          granteeAddress: config.account,
+          granteeAddress: process.env.NEXT_PUBLIC_AUTHZ_ADDRESS ?? '',
           grant: cosmos.authz.v1beta1.Grant.fromPartial({
             authorization: generateGenericAuthorizationTrx(
               {
@@ -88,7 +87,7 @@ const ApproveEntityAuthz: FC<ApproveEntityAuthzProps> = ({ onSuccess, header, da
 
       if (!hash) throw new Error('Failed to authorise SupaMoto to issue CARBON credits');
 
-      await updateEntities();
+      await fetchEntities();
 
       onSuccess({ done: true });
     } catch (error) {

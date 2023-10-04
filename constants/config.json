@@ -9,7 +9,7 @@
   "headerShowLogo": true,
   "about": "config.about",
   "termsAndConditions": "https://my.jambo.earth/legal/termsOfUse",
-  "account": "ixo12p2uww9dukmdy89yn4qmu3x0w5rpn4adwp7mtv",
+  "allowWallet": false,
   "actions": [
     {
       "id": "7f0cc7a072d514b38cb90bdf2e215901",

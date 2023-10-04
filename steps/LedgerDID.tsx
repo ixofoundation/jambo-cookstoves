@@ -42,10 +42,12 @@ const LedgerDid: FC<LedgerDidProps> = ({ onSuccess, onBack, header }) => {
       let allowances = await queryAllowances(queryClient!, wallet.user!.address);
 
       if (!allowances?.allowances?.length)
-        await axios.post('/api/feegrant/grantFeegrant', {
-          address: wallet.user!.address,
-          chainNetwork: chain.chainNetwork,
-        });
+        await axios
+          .post('/api/feegrant/grantFeegrant', {
+            address: wallet.user!.address,
+            chainNetwork: chain.chainNetwork,
+          })
+          .catch(console.error);
 
       allowances = await queryAllowances(queryClient!, wallet.user!.address);
 

@@ -21,6 +21,7 @@ import { veryShortAddress } from '@utils/wallets';
 import Loader from '@components/Loader/Loader';
 import NavigationCard from '@components/NavigationCard/NavigationCard';
 import { timeAgo } from '@utils/misc';
+import { countTokens } from '@utils/entity';
 
 const Transactions: NextPage = () => {
   const [transactions, setTransactions] = useState<HistoricTransaction[]>();
@@ -73,7 +74,7 @@ const Transactions: NextPage = () => {
 
       <main className={cls(utilsStyles.main)}>
         <NavigationCard
-          label={`${((carbon?.tokens ?? [])?.reduce((r, t) => r + Number(t.amount), 0) ?? 0)?.toFixed(0) ?? 0} CARBON`}
+          label={`${countTokens(carbon?.tokens ?? [])} CARBON`}
           icon={ArrowLeftIcon}
           onClick={backRoute}
         />
@@ -87,7 +88,7 @@ const Transactions: NextPage = () => {
 
         {transactions?.map((transaction: any) => {
           const received = transaction.to === wallet.user!?.address;
-          console.log(transaction);
+
           return (
             <Card key={transaction.id} className={styles.transactionCard}>
               <ColoredIcon icon={CookingPotIcon} color={ICON_COLOR.white} size={32} />

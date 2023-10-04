@@ -33,7 +33,7 @@ export const WalletContext = createContext({
   validators: [] as VALIDATOR[],
   entities: [] as Entity[],
   carbon: {} as ImpactTokens,
-  updateEntities: async () => Promise<Entity[]>,
+  fetchEntities: async () => Promise<Entity[]>,
   updateValidators: async () => {},
   updateValidatorAvatar: (validatorAddress: string, avatarUrl: string) => {},
 });
@@ -48,9 +48,10 @@ export const WalletProvider = ({ children }: HTMLAttributes<HTMLDivElement>) => 
   const [loaded, setLoaded] = useState<boolean>(false);
   const [validators, setValidators] = useState<VALIDATOR[]>();
   const [entities, setEntities] = useState<Entity[]>();
-  const { chain, chainInfo, queryClient, updateChainId, updateChainNetwork, graphqlClient } = useContext(ChainContext);
-  const [balances, fetchBalances, clearBalances] = useWalletData(queryAllBalances, wallet?.user?.address);
   const [carbon, setCarbon] = useState<ImpactTokens>();
+
+  const { chain, chainInfo, queryClient, updateChainId, updateChainNetwork, graphqlClient } = useContext(ChainContext);
+  // const [balances, fetchBalances, clearBalances] = useWalletData(queryAllBalances, wallet?.user?.address);
   // const [delegations, fetchDelegations, clearDelegations] = useWalletData(
   //   queryDelegatorDelegations,
   //   wallet?.user?.address,
@@ -92,9 +93,8 @@ export const WalletProvider = ({ children }: HTMLAttributes<HTMLDivElement>) => 
 
   const fetchImpactTokens = async () => {
     try {
-      if (!graphqlClient) throw new Error('Missing graphql client');
-      if (!wallet?.user?.address) throw new Error('Missing wallet address');
-      if (!queryClient) throw new Error('Missing query client');
+      if (!graphqlClient) return setCarbon({} as ImpactTokens); // throw new Error('Missing graphql client');
+      if (!wallet?.user?.address) return setCarbon({} as ImpactTokens); // throw new Error('Missing wallet address');
       const carbonTokens = await getUserCarbonTokensByAddress(graphqlClient!, wallet.user!.address!);
       setCarbon(carbonTokens);
     } catch (error) {
@@ -104,36 +104,48 @@ export const WalletProvider = ({ children }: HTMLAttributes<HTMLDivElement>) => 
   };
 
   const fetchAssets = () => {
-    fetchBalances();
+    // fetchBalances();
     fetchImpactTokens();
     // fetchDelegations();
     // fetchDelegationRewards();
     // fetchUnbondingDelegations();
   };
   const clearAssets = () => {
-    clearBalances();
+    // clearBalances();
     fetchImpactTokens();
     // clearDelegations();
     // clearDelegationRewards();
     // clearUnbondingDelegations();
   };
 
-  const updateEntities = async (): Promise<Entity[]> => {
+  const fetchEntities = async (): Promise<Entity[]> => {
     try {
-      console.log('updateEntities');
-      if (!graphqlClient) throw new Error('Missing graphql client');
-      if (!wallet?.user?.address) throw new Error('Missing wallet address');
+      if (!graphqlClient) {
+        setEntities([]);
+        return [];
+      }
+      if (!wallet?.user?.address) {
+        setEntities([]);
+        return [];
+      }
       let entitiesList = await getUserDevicesByOwnerAddress(graphqlClient, wallet.user!.address!);
-      if (!entitiesList.length) throw new Error('No entities found');
+      if (!entitiesList.length) {
+        setEntities([]);
+        return [];
+      }
       const newEntities = [];
       for (const entity of entitiesList) {
         const [entityProfile, userAuthzResponse, entityAuthzResponse] = await Promise.allSettled([
           fetchEntityProfile(entity),
-          queryGranterGrants(queryClient!, wallet.user!.address!),
-          queryGranterGrants(queryClient!, entity?.accounts?.find((a: EntityAccount) => a.name === 'admin')?.address!),
+          queryClient ? queryGranterGrants(queryClient!, wallet.user!.address!) : undefined,
+          queryClient
+            ? queryGranterGrants(
+                queryClient!,
+                entity?.accounts?.find((a: EntityAccount) => a.name === 'admin')?.address!,
+              )
+            : undefined,
         ]);
         const profile = entityProfile?.status === 'fulfilled' ? entityProfile.value : undefined;
-        console.log({ profile });
         const userAuthz =
           userAuthzResponse?.status === 'fulfilled' &&
           !!userAuthzResponse.value?.find(
@@ -165,7 +177,7 @@ export const WalletProvider = ({ children }: HTMLAttributes<HTMLDivElement>) => 
   };
 
   useEffect(() => {
-    if (queryClient && !entities?.filter((e) => e.userAuthz && e.entityAuthz).length) updateEntities();
+    if (queryClient && !entities?.filter((e) => e.userAuthz && e.entityAuthz).length) fetchEntities();
   }, [queryClient]);
 
   // const updateValidators = async () => {
@@ -216,7 +228,7 @@ export const WalletProvider = ({ children }: HTMLAttributes<HTMLDivElement>) => 
     if (loaded) fetchAssets();
     // @ts-ignore
     if (!queryClient && validators?.length) setValidators();
-    if (wallet.user?.address && !entities?.length) updateEntities();
+    if (wallet.user?.address && !entities?.length) fetchEntities();
   }, [wallet.user?.address, queryClient, chain.chainId]);
 
   useEffect(() => {
@@ -268,12 +280,12 @@ export const WalletProvider = ({ children }: HTMLAttributes<HTMLDivElement>) => 
   const value = {
     wallet: {
       ...wallet,
-      balances,
+      balances: [],
       delegations: [],
       delegationRewards: [],
       unbondingDelegations: [],
       loading:
-        balances.loading ||
+        // balances.loading ||
         // delegations.loading ||
         // delegationRewards.loading ||
         // unbondingDelegations.loading ||
@@ -288,7 +300,7 @@ export const WalletProvider = ({ children }: HTMLAttributes<HTMLDivElement>) => 
     logoutWallet,
     updateValidators: async () => {},
     updateValidatorAvatar: (validatorAddress: string, avatarUrl: string) => {},
-    updateEntities,
+    fetchEntities,
     entities: (entities ?? []) as Entity[],
     carbon: (carbon ?? {}) as ImpactTokens,
     validators: [], // generateValidators(
@@ -301,7 +313,7 @@ export const WalletProvider = ({ children }: HTMLAttributes<HTMLDivElement>) => 
   return (
     // @ts-ignore
     <WalletContext.Provider value={value}>
-      {!loaded || entities === undefined || carbon === undefined ? (
+      {!loaded || entities === undefined || carbon === undefined || (wallet.walletType && !queryClient) ? (
         <main className={cls(utilsStyles.main, utilsStyles.columnCenter)}>
           <SiteHeader displayLogo displayName />
           <div className={utilsStyles.spacer3} />

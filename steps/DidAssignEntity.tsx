@@ -27,7 +27,7 @@ const DidAssignEntity: FC<DidAssignEntityProps> = ({ onSuccess, header }) => {
   const [copied, setCopied] = useState(false);
   const polling = useRef<boolean>(false);
 
-  const { wallet, updateEntities, entities } = useContext(WalletContext);
+  const { wallet, fetchEntities, entities } = useContext(WalletContext);
 
   const entity = entities.find((e) => !e.userAuthz || !e.entityAuthz);
 
@@ -40,7 +40,7 @@ const DidAssignEntity: FC<DidAssignEntityProps> = ({ onSuccess, header }) => {
     await delay(5000);
     if (entities?.length) return;
     try {
-      const devices = await updateEntities();
+      const devices = await fetchEntities();
       if (!devices.length) throw new Error('No devices found');
       return;
     } catch (error) {

@@ -1,6 +1,6 @@
 import { useRouter } from 'next/router';
 import type { NextPage } from 'next';
-import { useContext } from 'react';
+import { useContext, useEffect } from 'react';
 import cls from 'classnames';
 
 import utilsStyles from '@styles/utils.module.scss';
@@ -17,6 +17,7 @@ import { groupWalletAssets } from '@utils/wallets';
 import { WalletContext } from '@contexts/wallet';
 import { ChainContext } from '@contexts/chain';
 import config from '@constants/config.json';
+import { replaceRoute } from '@utils/router';
 
 // TODO: add dollar values;
 
@@ -31,7 +32,12 @@ const Denom: NextPage = () => {
   );
   const asset = assets.find((asset) => asset.token.denom === urlDecodeIbcDenom(query.denom as string));
 
-  if (!asset) return <IconText title='Oops' subTitle='Something went wrong' Img={SadFace} imgSize={50} />;
+  useEffect(() => {
+    if (config.allowWallet === false) replaceRoute('/');
+  }, []);
+
+  if (!asset || config.allowWallet === false)
+    return <IconText title='Oops' subTitle='Something went wrong' Img={SadFace} imgSize={50} />;
 
   const backToAccount = () => replace('/account');
 

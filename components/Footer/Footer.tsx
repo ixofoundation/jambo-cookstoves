@@ -13,6 +13,7 @@ import Touch from '@icons/touch.svg';
 import Home from '@icons/home.svg';
 // import useWindowDimensions from '@hooks/windowDimensions';
 import { backRoute, replaceRoute } from '@utils/router';
+import config from '@constants/config.json';
 
 type FooterProps = {
   onBackUrl?: string;
@@ -52,7 +53,7 @@ const Footer = ({
 
   return (
     <footer className={styles.footer}>
-      {showAccountButton && (
+      {showAccountButton && config.allowWallet && (
         <Anchor href='/account' active={asPath !== '/account'}>
           <ButtonRound
             size={BUTTON_ROUND_SIZE.large}

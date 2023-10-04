@@ -1,6 +1,6 @@
 import { useRouter } from 'next/router';
 import type { NextPage } from 'next';
-import { useContext } from 'react';
+import { useContext, useEffect } from 'react';
 import cls from 'classnames';
 
 import utilsStyles from '@styles/utils.module.scss';
@@ -17,15 +17,26 @@ import { WalletContext } from '@contexts/wallet';
 import useModalState from '@hooks/useModalState';
 import config from '@constants/config.json';
 import { WALLETS } from '@constants/wallet';
+import SadFace from '@icons/sad_face.svg';
 import BottomSheetLogout from '@components/BottomSheetLogout/BottomSheetLogout';
 import BottomSheetAddress from '@components/BottomSheetAddress/BottomSheetAddress';
+import { replaceRoute } from '@utils/router';
+import IconText from '@components/IconText/IconText';
 
 const Account: NextPage = () => {
   const [QRVisible, showQR, hideQR] = useModalState(false);
   const [logoutVisible, showLogout, hideLogout] = useModalState(false);
-  const { wallet, updateWalletType } = useContext(WalletContext);
+  const { wallet } = useContext(WalletContext);
 
   const { push } = useRouter();
+
+  useEffect(() => {
+    if (config.allowWallet === false) replaceRoute('/');
+  }, []);
+
+  if (config.allowWallet === false)
+    return <IconText title='Oops' subTitle='Something went wrong' Img={SadFace} imgSize={50} />;
+
   const handleTokenClick = (denom: string) => push(`/account/${urlEncodeIbcDenom(denom)}`);
 
   return (

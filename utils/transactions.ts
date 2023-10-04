@@ -255,8 +255,6 @@ export const generateTransferTokenTrx = (
     ),
   });
 
-  console.log('value', value);
-
   return {
     typeUrl: '/ixo.token.v1beta1.MsgTransferToken',
     value: encode ? ixo.token.v1beta1.MsgTransferToken.encode(value).finish() : value,
