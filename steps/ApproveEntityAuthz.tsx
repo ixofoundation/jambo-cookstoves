@@ -22,6 +22,7 @@ import Loader from '@components/Loader/Loader';
 import { extractEntityName } from '@utils/entity';
 import { backRoute } from '@utils/router';
 import config from '@constants/config.json';
+import { queryAllowances } from '@utils/query';
 
 type ApproveEntityAuthzProps = {
   onSuccess: (data: StepDataType<STEPS.approve_entity_authz>) => void;
@@ -35,7 +36,7 @@ const ApproveEntityAuthz: FC<ApproveEntityAuthzProps> = ({ onSuccess, header, da
   const [error, setError] = useState<string>();
 
   const { wallet, updateEntities, entities } = useContext(WalletContext);
-  const { chainInfo } = useContext(ChainContext);
+  const { chainInfo, queryClient } = useContext(ChainContext);
 
   const entity = entities.find((e) => e.id === data.entityDid);
 
@@ -73,6 +74,8 @@ const ApproveEntityAuthz: FC<ApproveEntityAuthzProps> = ({ onSuccess, header, da
         }),
       ];
 
+      let allowances = await queryAllowances(queryClient!, wallet.user!.address);
+
       const hash = await broadCastMessages(
         wallet,
         msgs,
@@ -80,6 +83,7 @@ const ApproveEntityAuthz: FC<ApproveEntityAuthzProps> = ({ onSuccess, header, da
         defaultTrxFeeOption,
         'uixo',
         chainInfo as KEPLR_CHAIN_INFO_TYPE,
+        allowances?.allowances[0]?.granter ?? undefined,
       );
 
       if (!hash) throw new Error('Failed to authorise SupaMoto to issue CARBON credits');
