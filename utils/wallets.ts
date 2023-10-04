@@ -97,8 +97,8 @@ export const initializeWallet = async (
       return await initializeKeplr(chain as ChainInfo);
     case WALLET_TYPE.opera:
       return await initializeOpera(chain as ChainInfo);
-    case WALLET_TYPE.walletConnect:
-      return await initializeWC(chain as ChainInfo);
+    // case WALLET_TYPE.walletConnect:
+    //   return await initializeWC(chain as ChainInfo);
     default:
       return;
   }
@@ -120,8 +120,8 @@ export const broadCastMessages = async (
       return await keplrBroadCastMessage(msgs, memo, fee, feeDenom, chain as ChainInfo, feeGranter);
     case WALLET_TYPE.opera:
       return await operaBroadCastMessage(msgs, memo, fee, feeDenom, chain as ChainInfo, feeGranter);
-    case WALLET_TYPE.walletConnect:
-      return await WCBroadCastMessage(msgs, memo, fee, feeDenom, chain as ChainInfo, feeGranter);
+    // case WALLET_TYPE.walletConnect:
+    //   return await WCBroadCastMessage(msgs, memo, fee, feeDenom, chain as ChainInfo, feeGranter);
     default:
       return null;
   }

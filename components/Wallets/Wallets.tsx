@@ -19,7 +19,6 @@ const Wallets = ({ className, ...other }: WalletsProps) => {
 
   const keplrWallet = getKeplr();
   const operaWallet = getOpera();
-  const walletConnect = false;
 
   const { updateWalletType } = useContext(WalletContext);
 
@@ -30,7 +29,7 @@ const Wallets = ({ className, ...other }: WalletsProps) => {
 
   return (
     <div className={cls(styles.wallets, className)} {...other}>
-      {operaWallet || keplrWallet || walletConnect ? (
+      {operaWallet || keplrWallet ? (
         <>
           <div className={utilsStyles.spacer3} />
           <h3>Choose your wallet</h3>
@@ -49,14 +48,6 @@ const Wallets = ({ className, ...other }: WalletsProps) => {
               img={WALLETS.opera.img}
               onClick={handleOnSelect(WALLET_TYPE.opera)}
               selected={selectedWallet === WALLET_TYPE.opera}
-            />
-          )}
-          {!!walletConnect && (
-            <WalletCard
-              name={WALLETS.walletConnect.name}
-              img={WALLETS.walletConnect.img}
-              onClick={handleOnSelect(WALLET_TYPE.walletConnect)}
-              selected={selectedWallet === WALLET_TYPE.walletConnect}
             />
           )}
         </>
