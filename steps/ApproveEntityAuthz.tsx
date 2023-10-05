@@ -38,8 +38,10 @@ const ApproveEntityAuthz: FC<ApproveEntityAuthzProps> = ({ onSuccess, header, da
   const { chainInfo, queryClient } = useContext(ChainContext);
 
   const entity = entities.find((e) => e.id === data.entityDid);
+  const entityActive = entity?.userAuthz && entity?.entityAuthz;
 
   const handleSubmit = async () => {
+    if (entityActive) onSuccess({ done: true });
     if (!entities.length) return;
     try {
       setLoading(true);
@@ -88,8 +90,6 @@ const ApproveEntityAuthz: FC<ApproveEntityAuthzProps> = ({ onSuccess, header, da
       if (!hash) throw new Error('Failed to authorise SupaMoto to issue CARBON credits');
 
       await fetchEntities();
-
-      onSuccess({ done: true });
     } catch (error) {
       console.error('DidAssignEntity::handleSubmit', error);
       setError((error as { message: string })?.message ?? 'An error occurred');
@@ -131,17 +131,21 @@ const ApproveEntityAuthz: FC<ApproveEntityAuthzProps> = ({ onSuccess, header, da
             <div className={utilsStyles.spacer2} />
             <p className={utilsStyles.centerText}>{extractEntityName(entity)}</p>
             <div className={utilsStyles.spacer1} />
-            <p className={entity.userAuthz && entity.entityAuthz ? utilsStyles.successText : utilsStyles.errorText}>
-              {entity.userAuthz && entity.entityAuthz ? 'active' : 'inactive'}
+            <p className={entityActive ? utilsStyles.successText : utilsStyles.errorText}>
+              {entityActive ? 'active' : 'inactive'}
             </p>
             <div className={utilsStyles.spacer3} />
-            <p className={utilsStyles.centerText}>Earn CARBON?</p>
-            <div className={utilsStyles.spacer2} />
-            <p className={styles.finePrint}>
-              This will authorise SupaMoto to issue CARBON credits and send them to you, deducting a monthly fee of 200
-              CARBON.
-            </p>
-            {!!error && (
+            <p className={utilsStyles.centerText}>{entityActive ? 'Earning CARBON' : 'Earn CARBON?'}</p>
+            {!entityActive && (
+              <>
+                <div className={utilsStyles.spacer2} />
+                <p className={styles.finePrint}>
+                  This will authorise SupaMoto to issue CARBON credits and send them to you, deducting a monthly fee of
+                  200 CARBON.
+                </p>
+              </>
+            )}
+            {!entityActive && !!error && (
               <>
                 <div className={utilsStyles.spacer1} />
                 <p className={utilsStyles.errorText}>{error}</p>
