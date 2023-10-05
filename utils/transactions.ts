@@ -260,3 +260,11 @@ export const generateTransferTokenTrx = (
     value: encode ? ixo.token.v1beta1.MsgTransferToken.encode(value).finish() : value,
   };
 };
+
+export const generateExecTrx = ({ grantee, msgs }: { grantee: string; msgs: TRX_MSG[] }) => ({
+  typeUrl: '/cosmos.authz.v1beta1.MsgExec',
+  value: cosmos.authz.v1beta1.MsgExec.fromPartial({
+    grantee,
+    msgs: msgs as any[],
+  }),
+});

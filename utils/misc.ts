@@ -85,3 +85,9 @@ export function timeAgo(timestamp: number): string {
     return `${dayOfMonth.toString().padStart(2, '0')} ${month} ${year}`;
   }
 }
+
+export const addMinutesToDate = (date: Date, minutes: number): Date => {
+  const newDate = new Date(date);
+  newDate.setMinutes(newDate.getMinutes() + minutes);
+  return newDate;
+};

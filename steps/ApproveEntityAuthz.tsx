@@ -41,7 +41,7 @@ const ApproveEntityAuthz: FC<ApproveEntityAuthzProps> = ({ onSuccess, header, da
   const entityActive = entity?.userAuthz && entity?.entityAuthz;
 
   const handleSubmit = async () => {
-    if (entityActive) onSuccess({ done: true });
+    if (entityActive) return onSuccess({ done: true });
     if (!entities.length) return;
     try {
       setLoading(true);

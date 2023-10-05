@@ -17,10 +17,18 @@ import Stepper from '@components/Stepper/Stepper';
 import PelletBagsIcon from '@icons/pellet_bags.svg';
 import PriceTagIcon from '@icons/price_tag.svg';
 import ThumbsUpIcon from '@icons/thumbs_up.svg';
-import { defaultTrxFeeOption, generateTransferTokenTrx } from '@utils/transactions';
+import {
+  defaultTrxFeeOption,
+  generateExecTrx,
+  generateGenericAuthorizationTrx,
+  generateGrantEntityAccountAuthzTrx,
+  generateTransferTokenTrx,
+} from '@utils/transactions';
 import { countCarbon, countUserCarbon, determineTokensSend } from '@utils/entity';
 import { queryAllowances } from '@utils/query';
 import Footer from '@components/Footer/Footer';
+import { cosmos, utils } from '@ixo/impactxclient-sdk';
+import { addMinutesToDate } from '@utils/misc';
 
 const PELLETS = [
   {
@@ -46,7 +54,7 @@ const Pellets: NextPage = () => {
   const [successHash, setSuccessHash] = useState<string>();
   const [loading, setLoading] = useState<boolean>(false);
 
-  const { fetchAssets, carbon, wallet } = useContext(WalletContext);
+  const { fetchAssets, carbon, wallet, entities } = useContext(WalletContext);
   const { chainInfo, queryClient } = useContext(ChainContext);
 
   const affordable = PELLETS[selected]?.carbon <= countUserCarbon(carbon);
@@ -60,24 +68,74 @@ const Pellets: NextPage = () => {
     try {
       setLoading(true);
 
-      const carbonSource =
-        countCarbon(carbon[wallet.user!?.address]?.tokens) >= PELLETS[selected]?.carbon
-          ? carbon[wallet.user!?.address]?.tokens
-          : Object.values(carbon)?.find((v) => countCarbon(v?.tokens) >= PELLETS[selected]?.carbon)?.tokens ?? [];
+      let [carbonSourceType, carbonSourceTokens] = ['user', carbon[wallet.user!?.address]?.tokens];
 
-      if (!carbonSource) throw new Error('Not enough carbon in one account');
+      if (countCarbon(carbonSourceTokens ?? []) < PELLETS[selected]?.carbon) {
+        let newSource = Object.entries(carbon)
+          ?.map(([a, v]) => ({ ...v, address: a }))
+          ?.find((v) => countCarbon(v?.tokens) >= PELLETS[selected]?.carbon);
+        if (newSource) {
+          carbonSourceTokens = newSource?.tokens;
+          carbonSourceType = newSource.address;
+        }
+      }
 
-      const trx = generateTransferTokenTrx({
-        owner: wallet.user!?.address!,
-        recipient: process.env.NEXT_PUBLIC_PELLET_ADDRESS ?? '',
-        tokens: determineTokensSend(carbonSource, PELLETS[selected]?.carbon),
-      });
+      if (!countCarbon(carbonSourceTokens) || countCarbon(carbonSourceTokens) < PELLETS[selected]?.carbon)
+        throw new Error('Not enough CARBON');
+
+      const trxs = [];
+
+      if (carbonSourceType === 'user') {
+        trxs.push(
+          generateTransferTokenTrx({
+            owner: wallet.user!?.address!,
+            recipient: process.env.NEXT_PUBLIC_PELLET_ADDRESS ?? '',
+            tokens: determineTokensSend(carbonSourceTokens, PELLETS[selected]?.carbon),
+          }),
+        );
+      } else {
+        const entity = entities.find((e) => e?.accounts?.find((a) => a.address === carbonSourceType));
+        if (!entity) throw new Error('Entity not found');
+        trxs.push(
+          generateGrantEntityAccountAuthzTrx({
+            entityDid: entity?.id,
+            owner: wallet.user!?.address,
+            name: 'admin',
+            granteeAddress: wallet.user!?.address,
+            grant: cosmos.authz.v1beta1.Grant.fromPartial({
+              // @ts-ignore
+              authorization: generateGenericAuthorizationTrx(
+                {
+                  msg: '/ixo.token.v1beta1.MsgTransferToken',
+                },
+                true,
+              ),
+              expiration: utils.proto.toTimestamp(addMinutesToDate(new Date(), 5)),
+            }),
+          }),
+        );
+        trxs.push(
+          generateExecTrx({
+            grantee: wallet.user!?.address,
+            msgs: [
+              generateTransferTokenTrx(
+                {
+                  owner: entity.accounts?.find((a) => a.name === 'address')?.address!,
+                  recipient: process.env.NEXT_PUBLIC_PELLET_ADDRESS ?? '',
+                  tokens: determineTokensSend(carbonSourceTokens, PELLETS[selected]?.carbon),
+                },
+                true,
+              ),
+            ],
+          }),
+        );
+      }
 
       let allowances = await queryAllowances(queryClient!, wallet.user!.address);
 
       const hash = await broadCastMessages(
         wallet,
-        [trx],
+        trxs,
         `SupaMoto: ${PELLETS[selected]?.weight} pellets for ${wallet.user!?.did}}`,
         defaultTrxFeeOption,
         'uixo',
