@@ -2,6 +2,7 @@ import ImageWithFallback from '@components/ImageFallback/ImageFallback';
 
 import utilsStyles from '@styles/utils.module.scss';
 import styles from './EntityReceived.module.scss';
+import RoundedCheck from '@icons/custom_rounded_check.svg';
 
 type EntityReceivedProps = {
   entityName: string;
@@ -20,13 +21,7 @@ const EntityReceived = ({ entityName }: EntityReceivedProps) => {
           height={168}
         />
         <div className={styles.subIcon}>
-          <ImageWithFallback
-            src='/images/steps/entity_check.png'
-            alt='stove received icon'
-            fallbackSrc='/images/chain-logos/fallback.png'
-            width={50}
-            height={50}
-          />
+          <RoundedCheck width={60} height={60} />
         </div>
       </div>
       <div className={utilsStyles.spacer3} />

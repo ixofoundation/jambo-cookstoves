@@ -158,7 +158,14 @@ export const WalletProvider = ({ children }: HTMLAttributes<HTMLDivElement>) => 
             : undefined,
         ]);
         const profile = entityProfile?.status === 'fulfilled' ? entityProfile.value : undefined;
-        const userAuthz =
+        const userAuthzEntity =
+          userAuthzResponse?.status === 'fulfilled' &&
+          !!userAuthzResponse.value?.find(
+            (g) =>
+              g.authorization?.typeUrl === '/cosmos.authz.v1beta1.GenericAuthorization' &&
+              g.authorization.value?.msg === '/ixo.entity.v1beta1.MsgTransferEntity',
+          );
+        const userAuthZTokens =
           userAuthzResponse?.status === 'fulfilled' &&
           !!userAuthzResponse.value?.find(
             (g) =>
@@ -175,7 +182,7 @@ export const WalletProvider = ({ children }: HTMLAttributes<HTMLDivElement>) => 
         newEntities.push({
           ...entity,
           profile,
-          userAuthz,
+          userAuthz: userAuthZTokens && userAuthzEntity,
           entityAuthz,
         });
       }

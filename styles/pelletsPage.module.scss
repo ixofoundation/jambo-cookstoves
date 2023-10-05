@@ -66,3 +66,27 @@
   bottom: 40px;
   right: 40px;
 }
+
+.infoRow {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  margin: 0 5px;
+  padding: 0;
+  width: 100%;
+  max-width: 300px;
+
+  p {
+    margin: 0;
+    padding: 0;
+
+    &.error {
+      color: var(--error-color);
+    }
+
+    &.affordable {
+      font-weight: initial;
+    }
+  }
+}

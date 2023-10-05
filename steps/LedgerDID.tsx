@@ -17,6 +17,7 @@ import { queryAllowances } from '@utils/query';
 import { defaultTrxFeeOption, generateCreateIidTrx } from '@utils/transactions';
 import { broadCastMessages } from '@utils/wallets';
 import { KEPLR_CHAIN_INFO_TYPE } from 'types/chain';
+import { delay } from '@utils/misc';
 
 type LedgerDidProps = {
   onSuccess: (data: StepDataType<STEPS.iid_MsgCreateIidDocument>) => void;
@@ -26,7 +27,7 @@ type LedgerDidProps = {
 };
 
 const LedgerDid: FC<LedgerDidProps> = ({ onSuccess, onBack, header }) => {
-  const [loading, setLoading] = useState<boolean>(false);
+  const [step, setStep] = useState<string | undefined>(undefined);
   const [error, setError] = useState<string>();
 
   const { wallet, updateWalletUserDid } = useContext(WalletContext);
@@ -38,10 +39,11 @@ const LedgerDid: FC<LedgerDidProps> = ({ onSuccess, onBack, header }) => {
 
   const handleSubmit = async () => {
     try {
-      setLoading(true);
+      setStep('Checking if you have an allowance');
       let allowances = await queryAllowances(queryClient!, wallet.user!.address);
 
-      if (!allowances?.allowances?.length)
+      if (!allowances?.allowances?.length) {
+        setStep('Granting you an allowance');
         await axios
           .post('/api/feegrant/grantFeegrant', {
             address: wallet.user!.address,
@@ -49,10 +51,13 @@ const LedgerDid: FC<LedgerDidProps> = ({ onSuccess, onBack, header }) => {
           })
           .catch(console.error);
 
-      allowances = await queryAllowances(queryClient!, wallet.user!.address);
+        setStep('Checking if you have an allowance');
+        allowances = await queryAllowances(queryClient!, wallet.user!.address);
 
-      if (!allowances?.allowances?.length) throw new Error('Failed to grant feegrant');
+        if (!allowances?.allowances?.length) throw new Error('Failed to grant feegrant');
+      }
 
+      setStep('Creating your ixo DID');
       const did = utils.did.generateSecpDid(wallet.user!.pubKey);
       const trx = generateCreateIidTrx({
         did: did!,
@@ -71,11 +76,14 @@ const LedgerDid: FC<LedgerDidProps> = ({ onSuccess, onBack, header }) => {
 
       if (!hash) throw new Error('Failed to ledger DID');
 
+      setStep('Success!');
+      await delay(900);
+
       updateWalletUserDid(did);
     } catch (error) {
       setError((error as { message: string })?.message ?? 'An error occurred');
     } finally {
-      setLoading(false);
+      setStep(undefined);
     }
   };
 
@@ -84,12 +92,13 @@ const LedgerDid: FC<LedgerDidProps> = ({ onSuccess, onBack, header }) => {
       <Header header={header} />
 
       <main className={cls(utilsStyles.main, utilsStyles.columnJustifyCenter, styles.stepContainer)}>
-        {loading ? (
+        {step ? (
           <>
-            <div className={utilsStyles.spacer1} />
             <Loader size={100} />
             <div className={utilsStyles.spacer3} />
             <p className={utilsStyles.centerText}>Connecting...</p>
+            <div className={utilsStyles.spacer2} />
+            <p className={styles.lightFinePrint}>{step}</p>
             <div className={utilsStyles.spacer3} />
           </>
         ) : (

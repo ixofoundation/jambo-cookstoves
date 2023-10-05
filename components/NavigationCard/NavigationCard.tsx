@@ -1,4 +1,4 @@
-import { ElementType } from 'react';
+import { ElementType, useEffect } from 'react';
 
 import styles from './NavigationCard.module.scss';
 import Card from '@components/Card/Card';
@@ -9,14 +9,21 @@ type NavigationCardProps = {
   label: string;
   icon: ElementType<any>;
   onClick?: () => void;
+  onLoad?: () => void;
 };
 
-const NavigationCard = ({ label, icon, onClick = () => {} }: NavigationCardProps) => (
-  <Card className={styles.card} onClick={onClick}>
-    <ColoredIcon icon={icon} color={ICON_COLOR.primary} size={32} />
-    <h3 className={styles.label}>{label}</h3>
-    <ColoredIcon icon={VerticalDotsIcon} color={ICON_COLOR.white} size={32} />
-  </Card>
-);
+const NavigationCard = ({ label, icon, onClick = () => {}, onLoad }: NavigationCardProps) => {
+  useEffect(() => {
+    if (onLoad && typeof onLoad === 'function') onLoad();
+  }, []);
+
+  return (
+    <Card className={styles.card} onClick={onClick}>
+      <ColoredIcon icon={icon} color={ICON_COLOR.primary} size={32} />
+      <h3 className={styles.label}>{label}</h3>
+      <ColoredIcon icon={VerticalDotsIcon} color={ICON_COLOR.white} size={32} />
+    </Card>
+  );
+};
 
 export default NavigationCard;

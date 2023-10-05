@@ -1,4 +1,5 @@
-import { useContext, useEffect, useRef, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
+import { cosmos, utils } from '@ixo/impactxclient-sdk';
 import type { NextPage } from 'next';
 import cls from 'classnames';
 
@@ -27,30 +28,12 @@ import {
 import { countCarbon, countUserCarbon, determineTokensSend } from '@utils/entity';
 import { queryAllowances } from '@utils/query';
 import Footer from '@components/Footer/Footer';
-import { cosmos, utils } from '@ixo/impactxclient-sdk';
 import { addMinutesToDate } from '@utils/misc';
-
-const PELLETS = [
-  {
-    weight: '5 KG',
-    carbon: 250,
-  },
-  {
-    weight: '10 KG',
-    carbon: 500,
-  },
-  {
-    weight: '15 KG',
-    carbon: 750,
-  },
-  {
-    weight: '20 KG',
-    carbon: 1000,
-  },
-];
+import RoundedCheck from '@icons/custom_rounded_check.svg';
+import { PELLETS } from '@constants/supamoto';
 
 const Pellets: NextPage = () => {
-  const [selected, setSelected] = useState<any>(0);
+  const [selected, setSelected] = useState<any>(3);
   const [successHash, setSuccessHash] = useState<string>();
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -120,7 +103,7 @@ const Pellets: NextPage = () => {
             msgs: [
               generateTransferTokenTrx(
                 {
-                  owner: entity.accounts?.find((a) => a.name === 'address')?.address!,
+                  owner: entity.accounts?.find((a) => a.name === 'admin')?.address!,
                   recipient: process.env.NEXT_PUBLIC_PELLET_ADDRESS ?? '',
                   tokens: determineTokensSend(carbonSourceTokens, PELLETS[selected]?.carbon),
                 },
@@ -179,12 +162,18 @@ const Pellets: NextPage = () => {
               prefixIcon={PelletBagsIcon}
               onChange={setSelected}
             />
-            <div className={utilsStyles.spacer7} />
+            <div className={utilsStyles.spacer3} />
 
-            <div className={cls(styles.button, styles.original, affordable ? styles.enabled : styles.error)}>
-              <ColoredIcon icon={PriceTagIcon} color={affordable ? ICON_COLOR.primary : ICON_COLOR.error} size={24} />
-              <p>{PELLETS[selected]?.carbon} CARBON</p>
+            <div className={styles.infoRow}>
+              <p>Price</p>
+              <p className={affordable ? styles.affordable : styles.error}>{PELLETS[selected]?.carbon} CARBON</p>
             </div>
+            <div className={utilsStyles.spacer1} />
+            <div className={styles.infoRow}>
+              <p>Available</p>
+              <p>{countUserCarbon(carbon)} CARBON</p>
+            </div>
+            <div className={utilsStyles.spacer5} />
 
             <div
               className={cls(styles.button, styles.primary, affordable ? styles.enabled : styles.disabled)}
@@ -205,13 +194,7 @@ const Pellets: NextPage = () => {
             <div className={utilsStyles.relativePosition}>
               <ColoredIcon icon={PelletBagsIcon} color={ICON_COLOR.primary} size={240} />
               <div className={styles.checkIcon}>
-                <ImageWithFallback
-                  fallbackSrc='/images/chain-logos/fallback.png'
-                  src='/images/steps/entity_check.png'
-                  width={50}
-                  height={50}
-                  alt='check'
-                />
+                <RoundedCheck width={50} height={50} />
               </div>
             </div>
             <div className={utilsStyles.spacer1} />

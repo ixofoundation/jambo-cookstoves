@@ -27,11 +27,12 @@ const Transactions: NextPage = () => {
   const [transactions, setTransactions] = useState<HistoricTransaction[]>();
 
   const { graphqlClient } = useContext(ChainContext);
-  const { wallet, carbon } = useContext(WalletContext);
+  const { wallet, carbon, fetchAssets } = useContext(WalletContext);
   const fetching = useRef(false);
 
   useEffect(() => {
     fetchTransactions();
+    fetchAssets();
   }, []);
 
   const fetchTransactions = async () => {

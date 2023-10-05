@@ -24,9 +24,9 @@ import ThumbsUpIcon from '@icons/thumbs_up.svg';
 import { countUserCarbon } from '@utils/entity';
 
 const Home: NextPage = () => {
-  const { wallet, entities, carbon } = useContext(WalletContext);
+  const { wallet, entities, carbon, fetchAssets } = useContext(WalletContext);
 
-  if (!wallet?.user?.did || !entities?.some((e) => e.userAuthz && e.entityAuthz))
+  if (wallet?.user?.did || !entities?.some((e) => e.userAuthz && e.entityAuthz))
     return (
       <>
         <Head title={config.siteName} description={config.siteName + ' dApp'} />
@@ -69,6 +69,7 @@ const Home: NextPage = () => {
           label={`${countUserCarbon(carbon)} CARBON`}
           icon={WalletIcon}
           onClick={() => pushNewRoute('/transactions')}
+          onLoad={fetchAssets}
         />
 
         <div className={utilsStyles.spacer3} />

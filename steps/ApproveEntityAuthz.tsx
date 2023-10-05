@@ -1,4 +1,5 @@
 import { FC, useContext, useState } from 'react';
+import { cosmos } from '@ixo/impactxclient-sdk';
 import cls from 'classnames';
 
 import utilsStyles from '@styles/utils.module.scss';
@@ -15,13 +16,13 @@ import {
 } from '@utils/transactions';
 import { broadCastMessages } from '@utils/wallets';
 import { KEPLR_CHAIN_INFO_TYPE } from 'types/chain';
-import { cosmos } from '@ixo/impactxclient-sdk';
 import { ChainContext } from '@contexts/chain';
 import ImageWithFallback from '@components/ImageFallback/ImageFallback';
 import Loader from '@components/Loader/Loader';
 import { extractEntityName } from '@utils/entity';
 import { backRoute } from '@utils/router';
 import { queryAllowances } from '@utils/query';
+import RoundedPayment from '@icons/custom_rounded_payment.svg';
 
 type ApproveEntityAuthzProps = {
   onSuccess: (data: StepDataType<STEPS.approve_entity_authz>) => void;
@@ -47,6 +48,18 @@ const ApproveEntityAuthz: FC<ApproveEntityAuthzProps> = ({ onSuccess, header, da
       setLoading(true);
 
       const msgs = [
+        generateAuthzGrantTrx({
+          granter: wallet.user!.address!,
+          grantee: process.env.NEXT_PUBLIC_AUTHZ_ADDRESS ?? '',
+          grant: cosmos.authz.v1beta1.Grant.fromPartial({
+            authorization: generateGenericAuthorizationTrx(
+              {
+                msg: '/ixo.entity.v1beta1.MsgTransferEntity',
+              },
+              true,
+            ) as { typeUrl: string; value: Uint8Array },
+          }),
+        }),
         generateAuthzGrantTrx({
           granter: wallet.user!.address!,
           grantee: process.env.NEXT_PUBLIC_AUTHZ_ADDRESS ?? '',
@@ -119,13 +132,7 @@ const ApproveEntityAuthz: FC<ApproveEntityAuthzProps> = ({ onSuccess, header, da
                 height={168}
               />
               <div className={styles.subIcon}>
-                <ImageWithFallback
-                  src='/images/steps/entity_payment.png'
-                  alt='stove received icon'
-                  fallbackSrc='/images/chain-logos/fallback.png'
-                  width={50}
-                  height={50}
-                />
+                <RoundedPayment width={60} height={60} />
               </div>
             </div>
             <div className={utilsStyles.spacer2} />
@@ -140,8 +147,8 @@ const ApproveEntityAuthz: FC<ApproveEntityAuthzProps> = ({ onSuccess, header, da
               <>
                 <div className={utilsStyles.spacer2} />
                 <p className={styles.finePrint}>
-                  This will authorise SupaMoto to issue CARBON credits and send them to you, deducting a monthly fee of
-                  200 CARBON.
+                  This will authorize SupaMoto to withdraw CARBON from the Impact Asset to pay for the cooking stove, in
+                  accordance with your contractual agreement.
                 </p>
               </>
             )}
@@ -162,7 +169,7 @@ const ApproveEntityAuthz: FC<ApproveEntityAuthzProps> = ({ onSuccess, header, da
         )}
       </main>
 
-      <Footer onBack={backRoute} onForward={() => handleSubmit()} />
+      <Footer onBack={!entityActive ? backRoute : undefined} onForward={() => handleSubmit()} />
     </>
   );
 };

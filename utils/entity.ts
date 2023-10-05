@@ -77,13 +77,13 @@ export const countUserCarbon = (carbonTokens: ImpactTokensByAddress) => {
 export const extractEntityName = (entity: Entity) => {
   const number = entity?.alsoKnownAs?.split('#')?.[1];
   let name = `SupaMoto #${number}`;
-  const profile = typeof entity.profile === 'string' ? JSON.parse(entity.profile) : entity.profile;
+  const profile = typeof entity?.profile === 'string' ? JSON.parse(entity.profile) : entity?.profile;
   if (profile?.brand) name = `${profile.brand} #${number}`;
   return name;
 };
 
 export const extractEntityType = (entity: Entity) => {
-  const profile = typeof entity.profile === 'string' ? JSON.parse(entity.profile) : entity.profile;
+  const profile = typeof entity?.profile === 'string' ? JSON.parse(entity.profile) : entity?.profile;
   if (profile?.name) return profile?.name;
   return 'SupaMoto';
 };

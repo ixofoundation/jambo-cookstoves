@@ -14,7 +14,6 @@ import EntityReceived from '@components/EntityReceived/EntityReceived';
 import { extractEntityName } from '@utils/entity';
 import ColoredIcon, { ICON_COLOR } from '@components/ColoredIcon/ColoredIcon';
 import QRIcon from '@icons/qr_code.svg';
-import { backRoute } from '@utils/router';
 
 type DidAssignEntityProps = {
   onSuccess: (data: StepDataType<STEPS.did_assign_entity>) => void;
@@ -61,6 +60,8 @@ const DidAssignEntity: FC<DidAssignEntityProps> = ({ onSuccess, header }) => {
     }, 1500);
   };
 
+  const qr = JSON.stringify({ did: wallet?.user?.did ?? '', address: wallet?.user?.address ?? '' });
+
   return (
     <>
       <Header header={header} />
@@ -74,11 +75,11 @@ const DidAssignEntity: FC<DidAssignEntityProps> = ({ onSuccess, header }) => {
             <p className={utilsStyles.centerText}>Please show this QR to your SupaMoto agent</p>
             <div className={utilsStyles.spacer3} />
             <div className={cls(utilsStyles.columnCenter, styles.qrWrapper)}>
-              <QRCode value={wallet?.user?.did ?? ''} size={150} />
+              <QRCode value={qr} size={150} />
             </div>
             <div className={utilsStyles.spacer3} />
             <Footer>
-              <CopyToClipboard text={wallet.user!?.did ?? ''} onCopy={onCopy}>
+              <CopyToClipboard text={qr} onCopy={onCopy}>
                 <div className={cls(utilsStyles.longButton)} onClick={() => {}}>
                   <ColoredIcon icon={QRIcon} color={ICON_COLOR.bg} size={24} />
                   <p>{copied ? 'Copied' : 'Copy'}</p>
