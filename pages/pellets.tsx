@@ -18,7 +18,7 @@ import PelletBagsIcon from '@icons/pellet_bags.svg';
 import PriceTagIcon from '@icons/price_tag.svg';
 import ThumbsUpIcon from '@icons/thumbs_up.svg';
 import { defaultTrxFeeOption, generateTransferTokenTrx } from '@utils/transactions';
-import { countTokens, determineTokensSend } from '@utils/entity';
+import { countCarbon, countUserCarbon, determineTokensSend } from '@utils/entity';
 import { queryAllowances } from '@utils/query';
 import Footer from '@components/Footer/Footer';
 
@@ -49,7 +49,7 @@ const Pellets: NextPage = () => {
   const { fetchAssets, carbon, wallet } = useContext(WalletContext);
   const { chainInfo, queryClient } = useContext(ChainContext);
 
-  const affordable = PELLETS[selected]?.carbon <= countTokens(carbon?.tokens ?? []);
+  const affordable = PELLETS[selected]?.carbon <= countUserCarbon(carbon);
 
   useEffect(() => {
     fetchAssets();
@@ -60,10 +60,17 @@ const Pellets: NextPage = () => {
     try {
       setLoading(true);
 
+      const carbonSource =
+        countCarbon(carbon[wallet.user!?.address]?.tokens) >= PELLETS[selected]?.carbon
+          ? carbon[wallet.user!?.address]?.tokens
+          : Object.values(carbon)?.find((v) => countCarbon(v?.tokens) >= PELLETS[selected]?.carbon)?.tokens ?? [];
+
+      if (!carbonSource) throw new Error('Not enough carbon in one account');
+
       const trx = generateTransferTokenTrx({
         owner: wallet.user!?.address!,
         recipient: process.env.NEXT_PUBLIC_PELLET_ADDRESS ?? '',
-        tokens: determineTokensSend(carbon?.tokens ?? [], PELLETS[selected]?.carbon),
+        tokens: determineTokensSend(carbonSource, PELLETS[selected]?.carbon),
       });
 
       let allowances = await queryAllowances(queryClient!, wallet.user!.address);
@@ -71,7 +78,7 @@ const Pellets: NextPage = () => {
       const hash = await broadCastMessages(
         wallet,
         [trx],
-        `SupaMoto: ${PELLETS[selected]?.weight} pellets`,
+        `SupaMoto: ${PELLETS[selected]?.weight} pellets for ${wallet.user!?.did}}`,
         defaultTrxFeeOption,
         'uixo',
         chainInfo!,

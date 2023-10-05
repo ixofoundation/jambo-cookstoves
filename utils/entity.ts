@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 import { Entity, EntityService } from 'types/entity';
-import { ImpactToken, ImpactTokenBatch } from 'types/wallet';
+import { ImpactToken, ImpactTokenBatch, ImpactTokensByAddress } from 'types/wallet';
 import { toJsonString } from './misc';
 
 export const getAdditionalInfo = async (url: string, tag?: string) => {
@@ -63,9 +63,15 @@ export const determineTokensSend = (tokens: ImpactTokenBatch[], amount: number) 
   return offsetTokens;
 };
 
-export const countTokens = (tokens: ImpactTokenBatch[]) => {
-  if (!tokens.length || !Array.isArray(tokens)) return 0;
-  return tokens.reduce((acc, t) => acc + Number(t?.amount ?? 0), 0);
+export const countCarbon = (tokens: ImpactTokenBatch[]) =>
+  (tokens ?? [])?.reduce((acc, t) => acc + Number(t?.amount ?? 0), 0) ?? 0;
+
+export const countUserCarbon = (carbonTokens: ImpactTokensByAddress) => {
+  const tokens = Object.values(carbonTokens ?? {})
+    ?.map((t) => t.tokens)
+    ?.flat();
+  if (!Array.isArray(tokens) || !tokens?.length) return 0;
+  return countCarbon(tokens);
 };
 
 export const extractEntityName = (entity: Entity) => {

@@ -79,6 +79,8 @@ export type ImpactTokens = {
   tokens: ImpactTokenBatch[];
 };
 
+export type ImpactTokensByAddress = Record<string, ImpactTokens>;
+
 export type ImpactToken = {
   id: string;
   amount: string;

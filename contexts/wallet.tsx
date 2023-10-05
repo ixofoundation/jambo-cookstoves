@@ -6,7 +6,7 @@ import cls from 'classnames';
 import utilsStyles from '@styles/utils.module.scss';
 import { SiteHeader } from '@components/Header/Header';
 import Loader from '@components/Loader/Loader';
-import { ImpactTokens, WALLET, WALLET_TYPE } from 'types/wallet';
+import { ImpactTokensByAddress, WALLET, WALLET_TYPE } from 'types/wallet';
 import { KEPLR_CHAIN_INFO_TYPE } from 'types/chain';
 import { VALIDATOR } from 'types/validators';
 import { getLocalStorage, setLocalStorage } from '@utils/persistence';
@@ -32,7 +32,7 @@ export const WalletContext = createContext({
   logoutWallet: () => {},
   validators: [] as VALIDATOR[],
   entities: [] as Entity[],
-  carbon: {} as ImpactTokens,
+  carbon: {} as ImpactTokensByAddress,
   fetchEntities: async () => Promise<Entity[]>,
   updateValidators: async () => {},
   updateValidatorAvatar: (validatorAddress: string, avatarUrl: string) => {},
@@ -48,7 +48,7 @@ export const WalletProvider = ({ children }: HTMLAttributes<HTMLDivElement>) => 
   const [loaded, setLoaded] = useState<boolean>(false);
   const [validators, setValidators] = useState<VALIDATOR[]>();
   const [entities, setEntities] = useState<Entity[]>();
-  const [carbon, setCarbon] = useState<ImpactTokens>();
+  const [carbon, setCarbon] = useState<ImpactTokensByAddress>();
 
   const { chain, chainInfo, queryClient, updateChainId, updateChainNetwork, graphqlClient } = useContext(ChainContext);
   // const [balances, fetchBalances, clearBalances] = useWalletData(queryAllBalances, wallet?.user?.address);
@@ -93,13 +93,25 @@ export const WalletProvider = ({ children }: HTMLAttributes<HTMLDivElement>) => 
 
   const fetchImpactTokens = async () => {
     try {
-      if (!graphqlClient) return setCarbon({} as ImpactTokens); // throw new Error('Missing graphql client');
-      if (!wallet?.user?.address) return setCarbon({} as ImpactTokens); // throw new Error('Missing wallet address');
+      if (!graphqlClient) return setCarbon({} as ImpactTokensByAddress); // throw new Error('Missing graphql client');
+      if (!wallet?.user?.address) return setCarbon({} as ImpactTokensByAddress); // throw new Error('Missing wallet address');
       const carbonTokens = await getUserCarbonTokensByAddress(graphqlClient!, wallet.user!.address!);
-      setCarbon(carbonTokens);
+      setCarbon((prevState) => ({ ...(prevState ?? {}), [wallet.user!.address!]: carbonTokens }));
+      const entitiesForCarbon = (entities ?? [])
+        .map((e) => (e.userAuthz && e.entityAuthz ? e.accounts?.find((a) => a.name === 'admin')?.address : undefined))
+        .filter((a) => a) as string[];
+      if (entitiesForCarbon) {
+        const entitiesCarbon = await Promise.allSettled(
+          entitiesForCarbon.map((a: string) => getUserCarbonTokensByAddress(graphqlClient!, a!)),
+        );
+        entitiesCarbon.forEach((e, i) => {
+          if (e.status === 'fulfilled')
+            setCarbon((prevState) => ({ ...(prevState ?? {}), [entitiesForCarbon[i]]: e.value }));
+        });
+      }
     } catch (error) {
       console.error(error);
-      setCarbon({} as ImpactTokens);
+      setCarbon({} as ImpactTokensByAddress);
     }
   };
 
@@ -168,6 +180,7 @@ export const WalletProvider = ({ children }: HTMLAttributes<HTMLDivElement>) => 
         });
       }
       setEntities(newEntities);
+      fetchImpactTokens();
       return newEntities;
     } catch (error) {
       console.error(error);
@@ -304,7 +317,7 @@ export const WalletProvider = ({ children }: HTMLAttributes<HTMLDivElement>) => 
     updateValidatorAvatar: (validatorAddress: string, avatarUrl: string) => {},
     fetchEntities,
     entities: (entities ?? []) as Entity[],
-    carbon: (carbon ?? {}) as ImpactTokens,
+    carbon: (carbon ?? {}) as ImpactTokensByAddress,
     validators: [], // generateValidators(
     //   validators,
     //   (delegations as WALLET_DELEGATIONS)?.data,

@@ -21,7 +21,7 @@ import { veryShortAddress } from '@utils/wallets';
 import Loader from '@components/Loader/Loader';
 import NavigationCard from '@components/NavigationCard/NavigationCard';
 import { timeAgo } from '@utils/misc';
-import { countTokens } from '@utils/entity';
+import { countUserCarbon } from '@utils/entity';
 
 const Transactions: NextPage = () => {
   const [transactions, setTransactions] = useState<HistoricTransaction[]>();
@@ -73,11 +73,7 @@ const Transactions: NextPage = () => {
       <Header />
 
       <main className={cls(utilsStyles.main)}>
-        <NavigationCard
-          label={`${countTokens(carbon?.tokens ?? [])} CARBON`}
-          icon={ArrowLeftIcon}
-          onClick={backRoute}
-        />
+        <NavigationCard label={`${countUserCarbon(carbon)} CARBON`} icon={ArrowLeftIcon} onClick={backRoute} />
 
         <div className={utilsStyles.spacer1} />
         <div className={cls(utilsStyles.rowJustifyCenter, utilsStyles.rowAlignCenter)}>

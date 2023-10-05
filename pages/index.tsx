@@ -21,7 +21,7 @@ import { pushNewRoute } from '@utils/router';
 import ActionCard from '@components/ActionCard/ActionCard';
 import NavigationCard from '@components/NavigationCard/NavigationCard';
 import ThumbsUpIcon from '@icons/thumbs_up.svg';
-import { countTokens } from '@utils/entity';
+import { countUserCarbon } from '@utils/entity';
 
 const Home: NextPage = () => {
   const { wallet, entities, carbon } = useContext(WalletContext);
@@ -66,7 +66,7 @@ const Home: NextPage = () => {
         />
         <div className={utilsStyles.spacer1} />
         <NavigationCard
-          label={`${countTokens(carbon?.tokens ?? [])} CARBON`}
+          label={`${countUserCarbon(carbon)} CARBON`}
           icon={WalletIcon}
           onClick={() => pushNewRoute('/transactions')}
         />

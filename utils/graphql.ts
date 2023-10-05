@@ -57,7 +57,7 @@ export async function getUserCarbonTokensByAddress(graphqlClient: GRAPHQL_CLIENT
         contractAddress: '',
         description: '',
         image: '',
-        tokens: {},
+        tokens: [],
       };
 }
 
