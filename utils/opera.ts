@@ -43,6 +43,7 @@ export const operaBroadCastMessage = async (
 ): Promise<string | null> => {
   try {
     const [accounts, offlineSigner] = await connectOperaAccount(chainInfo);
+    console.log({ accounts });
 
     if (!accounts) throw new Error('No accounts found to broadcast transaction');
     if (!offlineSigner) throw new Error('No offlineSigner found to broadcast transaction');

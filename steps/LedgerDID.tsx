@@ -60,6 +60,7 @@ const LedgerDid: FC<LedgerDidProps> = ({ onSuccess, onBack, header }) => {
       setStep('Creating your ixo DID');
       console.log({ pubKey: wallet.user!?.pubKey });
       const did = utils.did.generateSecpDid(wallet.user!.pubKey);
+      console.log({ did });
       const trx = generateCreateIidTrx({
         did: did!,
         pubkey: wallet.user!.pubKey,
