@@ -101,7 +101,7 @@ const LedgerDid: FC<LedgerDidProps> = ({ onSuccess, onBack, header }) => {
         setStep('Success!');
         await delay(900);
 
-        updateWalletUserDid(existingDid!);
+        updateWalletUserDid(did!);
       }
     } catch (error) {
       setError((error as { message: string })?.message ?? 'An error occurred');
