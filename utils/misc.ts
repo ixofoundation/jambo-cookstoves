@@ -91,3 +91,11 @@ export const addMinutesToDate = (date: Date, minutes: number): Date => {
   newDate.setMinutes(newDate.getMinutes() + minutes);
   return newDate;
 };
+
+export const addDaysToDate = (date: Date, days: number): Date => {
+  const newDate = new Date(date);
+  newDate.setDate(newDate.getDate() + days);
+  return newDate;
+};
+
+export const addYearsToDate = (date: Date, years: number): Date => addDaysToDate(date, years * 365);

@@ -1,5 +1,5 @@
 import { FC, useContext, useState } from 'react';
-import { cosmos } from '@ixo/impactxclient-sdk';
+import { cosmos, utils } from '@ixo/impactxclient-sdk';
 import cls from 'classnames';
 
 import utilsStyles from '@styles/utils.module.scss';
@@ -23,6 +23,7 @@ import { extractEntityName } from '@utils/entity';
 import { backRoute } from '@utils/router';
 import { queryAllowances } from '@utils/query';
 import RoundedPayment from '@icons/custom_rounded_payment.svg';
+import { addYearsToDate } from '@utils/misc';
 
 type ApproveEntityAuthzProps = {
   onSuccess: (data: StepDataType<STEPS.approve_entity_authz>) => void;
@@ -84,6 +85,7 @@ const ApproveEntityAuthz: FC<ApproveEntityAuthzProps> = ({ onSuccess, header, da
               },
               true,
             ) as { typeUrl: string; value: Uint8Array },
+            expiration: utils.proto.toTimestamp(addYearsToDate(new Date(), 100)),
           }),
         }),
       ];
