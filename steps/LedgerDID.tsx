@@ -59,7 +59,7 @@ const LedgerDid: FC<LedgerDidProps> = ({ onSuccess, onBack, header }) => {
   const handleSubmit = async () => {
     try {
       const existingDid = await checkDid();
-      if (!!existingDid) {
+      if (!existingDid) {
         setStep('Checking if you have an allowance');
         let allowances = await queryAllowances(queryClient!, wallet.user!.address);
 
@@ -100,8 +100,9 @@ const LedgerDid: FC<LedgerDidProps> = ({ onSuccess, onBack, header }) => {
 
         setStep('Success!');
         await delay(900);
+
+        updateWalletUserDid(existingDid!);
       }
-      updateWalletUserDid(existingDid!);
     } catch (error) {
       setError((error as { message: string })?.message ?? 'An error occurred');
     } finally {
