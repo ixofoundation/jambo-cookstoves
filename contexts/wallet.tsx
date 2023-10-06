@@ -1,4 +1,4 @@
-import { createContext, useState, useEffect, HTMLAttributes, useContext } from 'react';
+import { createContext, useState, useEffect, HTMLAttributes, useContext, useRef } from 'react';
 import { ChainNetwork } from '@ixo/impactxclient-sdk/types/custom_queries/chain.types';
 import { utils } from '@ixo/impactxclient-sdk';
 import cls from 'classnames';
@@ -13,7 +13,6 @@ import { getLocalStorage, setLocalStorage } from '@utils/persistence';
 import { initializeWallet } from '@utils/wallets';
 import { queryGranterGrants, queryIidDocument } from '@utils/query';
 import { EVENT_LISTENER_TYPE } from '@constants/events';
-// import useWalletData from '@hooks/useWalletData';
 import { ChainContext } from './chain';
 import { getOpera } from '@utils/opera';
 import { getKeplr } from '@utils/keplr';
@@ -49,21 +48,9 @@ export const WalletProvider = ({ children }: HTMLAttributes<HTMLDivElement>) => 
   const [validators, setValidators] = useState<VALIDATOR[]>();
   const [entities, setEntities] = useState<Entity[]>();
   const [carbon, setCarbon] = useState<ImpactTokensByAddress>();
+  const walletInitializing = useRef<boolean>(false);
 
   const { chain, chainInfo, queryClient, updateChainId, updateChainNetwork, graphqlClient } = useContext(ChainContext);
-  // const [balances, fetchBalances, clearBalances] = useWalletData(queryAllBalances, wallet?.user?.address);
-  // const [delegations, fetchDelegations, clearDelegations] = useWalletData(
-  //   queryDelegatorDelegations,
-  //   wallet?.user?.address,
-  // );
-  // const [delegationRewards, fetchDelegationRewards, clearDelegationRewards] = useWalletData(
-  //   queryDelegationTotalRewards,
-  //   wallet?.user?.address,
-  // );
-  // const [unbondingDelegations, fetchUnbondingDelegations, clearUnbondingDelegations] = useWalletData(
-  //   queryDelegatorUnbondingDelegations,
-  //   wallet?.user?.address,
-  // );
 
   const updateWallet = (newWallet: WALLET, override: boolean = false) => {
     if (override) setWallet({ ...DEFAULT_WALLET, ...newWallet });
@@ -76,6 +63,8 @@ export const WalletProvider = ({ children }: HTMLAttributes<HTMLDivElement>) => 
   const updateWalletUserDid = (did: string) => updateWallet({ user: { ...wallet.user, did } });
 
   const initializeWallets = async () => {
+    if (walletInitializing.current) return;
+    walletInitializing.current = true;
     try {
       let user = await initializeWallet(wallet.walletType, chainInfo as KEPLR_CHAIN_INFO_TYPE);
       if (user?.pubKey) {
@@ -86,6 +75,8 @@ export const WalletProvider = ({ children }: HTMLAttributes<HTMLDivElement>) => 
       updateWallet({ user });
     } catch (error) {
       console.error('Initializing wallets error:', error);
+    } finally {
+      walletInitializing.current = false;
     }
   };
 
@@ -116,18 +107,10 @@ export const WalletProvider = ({ children }: HTMLAttributes<HTMLDivElement>) => 
   };
 
   const fetchAssets = () => {
-    // fetchBalances();
     fetchImpactTokens();
-    // fetchDelegations();
-    // fetchDelegationRewards();
-    // fetchUnbondingDelegations();
   };
   const clearAssets = () => {
-    // clearBalances();
     fetchImpactTokens();
-    // clearDelegations();
-    // clearDelegationRewards();
-    // clearUnbondingDelegations();
   };
 
   const fetchEntities = async (): Promise<Entity[]> => {
@@ -200,49 +183,9 @@ export const WalletProvider = ({ children }: HTMLAttributes<HTMLDivElement>) => 
     if (queryClient && !entities?.filter((e) => e.userAuthz && e.entityAuthz).length) fetchEntities();
   }, [queryClient]);
 
-  // const updateValidators = async () => {
-  //   try {
-  //     if (!queryClient?.cosmos || !wallet?.walletType) return;
-  //     const validatorList = await queryValidators(queryClient);
-  //     setValidators((prevState) =>
-  //       validatorList.map((validator: VALIDATOR) => {
-  //         const prevValidator = prevState?.find((v) => v.address === validator.address);
-  //         if (prevValidator) {
-  //           return { ...prevValidator, ...validator, avatarUrl: prevValidator.avatarUrl };
-  //         }
-  //         return validator;
-  //       }),
-  //     );
-  //     // fetchDelegations();
-  //     // fetchDelegationRewards();
-  //     // fetchUnbondingDelegations();
-  //   } catch (error) {
-  //     console.error(error);
-  //   }
-  // };
-
-  // const updateValidatorAvatar = async (validatorAddress: string, avatarUrl: string) => {
-  //   if (!validators?.length) return;
-  //   const validatorIndex = validators.findIndex((v) => v.address === validatorAddress);
-  //   if (validatorIndex < 0) return;
-  //   setValidators((prevState: VALIDATOR[] | undefined) =>
-  //     !prevState
-  //       ? prevState
-  //       : [
-  //           ...prevState.slice(0, validatorIndex),
-  //           { ...prevState[validatorIndex], avatarUrl },
-  //           ...prevState.slice(validatorIndex + 1),
-  //         ],
-  //   );
-  // };
-
   const updateKeplrWallet = async () => {
     if (loaded && wallet.walletType) initializeWallets();
   };
-
-  // const updateWalletConnectWallet = async () => {
-  //   if (loaded && wallet.walletType) initializeWallets();
-  // };
 
   useEffect(() => {
     if (loaded) fetchAssets();
@@ -258,31 +201,16 @@ export const WalletProvider = ({ children }: HTMLAttributes<HTMLDivElement>) => 
   useEffect(() => {
     if (loaded && wallet.walletType) initializeWallets();
     if (wallet.walletType === WALLET_TYPE.keplr) {
-      // window.addEventListener(EVENT_LISTENER_TYPE.wc_sessionupdate, updateWalletConnectWallet);
-      // window.removeEventListener(EVENT_LISTENER_TYPE.wc_sessiondelete, logoutWallet);
       window.addEventListener(EVENT_LISTENER_TYPE.keplr_keystorechange, updateKeplrWallet);
 
       return () => window.removeEventListener(EVENT_LISTENER_TYPE.keplr_keystorechange, updateKeplrWallet);
-    }
-    // else if (wallet.walletType === WALLET_TYPE.walletConnect) {
-    //   window.removeEventListener(EVENT_LISTENER_TYPE.keplr_keystorechange, updateKeplrWallet);
-    //   window.addEventListener(EVENT_LISTENER_TYPE.wc_sessionupdate, updateWalletConnectWallet);
-    //   window.addEventListener(EVENT_LISTENER_TYPE.wc_sessiondelete, logoutWallet);
-
-    //   return () => {
-    //     window.removeEventListener(EVENT_LISTENER_TYPE.wc_sessionupdate, updateWalletConnectWallet);
-    //     window.removeEventListener(EVENT_LISTENER_TYPE.wc_sessiondelete, logoutWallet);
-    //   };
-    // }
-    else {
+    } else {
       window.removeEventListener(EVENT_LISTENER_TYPE.keplr_keystorechange, updateKeplrWallet);
-      // window.removeEventListener(EVENT_LISTENER_TYPE.wc_sessionupdate, updateWalletConnectWallet);
-      // window.removeEventListener(EVENT_LISTENER_TYPE.wc_sessiondelete, logoutWallet);
     }
   }, [wallet.walletType, chain.chainId, chain.chainNetwork]);
 
   useEffect(() => {
-    if (!chain.chainLoading && loaded && wallet.walletType) initializeWallets();
+    // if (!chain.chainLoading && loaded && wallet.walletType) initializeWallets();
     if (!chain.chainLoading) {
       const operaWallet = getOpera();
       const keplrWallet = getKeplr();
@@ -306,12 +234,7 @@ export const WalletProvider = ({ children }: HTMLAttributes<HTMLDivElement>) => 
       delegations: [],
       delegationRewards: [],
       unbondingDelegations: [],
-      loading:
-        // balances.loading ||
-        // delegations.loading ||
-        // delegationRewards.loading ||
-        // unbondingDelegations.loading ||
-        chain.chainLoading,
+      loading: chain.chainLoading,
     } as WALLET,
     updateWalletType,
     updateWalletUserDid,
@@ -325,11 +248,7 @@ export const WalletProvider = ({ children }: HTMLAttributes<HTMLDivElement>) => 
     fetchEntities,
     entities: (entities ?? []) as Entity[],
     carbon: (carbon ?? {}) as ImpactTokensByAddress,
-    validators: [], // generateValidators(
-    //   validators,
-    //   (delegations as WALLET_DELEGATIONS)?.data,
-    //   (delegationRewards as WALLET_DELEGATION_REWARDS)?.data?.rewards,
-    // ) as VALIDATOR[],
+    validators: [],
   };
 
   return (
