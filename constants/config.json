@@ -1,13 +1,13 @@
 {
   "siteName": "SupaMoto",
-  "siteUrl": "config.siteUrl",
-  "siteTitleMeta": "SupaMoto dApp",
-  "siteDescriptionMeta": "config.siteDescriptionMeta",
+  "siteUrl": "cookstoves.jambo.earth",
+  "siteTitleMeta": "SupaMoto Cookstoves dApp",
+  "siteDescriptionMeta": "JAMBO dApp for SupaMoto Cookstoves management and pellet purchases.",
   "fontUrl": "https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap",
   "fontName": "Roboto",
   "headerShowName": true,
   "headerShowLogo": true,
-  "about": "config.about",
+  "about": "This is a JAMBO dApp for SupaMoto Cookstoves management and pellet purchases.",
   "termsAndConditions": "https://my.jambo.earth/legal/termsOfUse",
   "allowWallet": false,
   "actions": [
@@ -27,8 +27,8 @@
           "name": "Approve Stove"
         }
       ],
-      "name": "Free Cookstove",
-      "description": "Crypto Send",
+      "name": "My Cookstove",
+      "description": "Setup My Cookstove",
       "image": "7f0cc7a072d514b38cb90bdf2e215901.png"
     }
   ]

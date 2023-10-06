@@ -18,6 +18,7 @@ import { defaultTrxFeeOption, generateCreateIidTrx } from '@utils/transactions';
 import { broadCastMessages } from '@utils/wallets';
 import { KEPLR_CHAIN_INFO_TYPE } from 'types/chain';
 import { delay } from '@utils/misc';
+import config from '@constants/config.json';
 
 type LedgerDidProps = {
   onSuccess: (data: StepDataType<STEPS.iid_MsgCreateIidDocument>) => void;
@@ -26,7 +27,7 @@ type LedgerDidProps = {
   header?: string;
 };
 
-const LedgerDid: FC<LedgerDidProps> = ({ onSuccess, onBack, header }) => {
+const LedgerDid: FC<LedgerDidProps> = ({ onSuccess, onBack }) => {
   const [step, setStep] = useState<string | undefined>(undefined);
   const [error, setError] = useState<string>();
 
@@ -112,7 +113,7 @@ const LedgerDid: FC<LedgerDidProps> = ({ onSuccess, onBack, header }) => {
 
   return (
     <>
-      <Header header={header} />
+      <Header header={config.siteName} />
 
       <main className={cls(utilsStyles.main, utilsStyles.columnJustifyCenter, styles.stepContainer)}>
         {step ? (

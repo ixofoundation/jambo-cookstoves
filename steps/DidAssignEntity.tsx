@@ -14,6 +14,7 @@ import EntityReceived from '@components/EntityReceived/EntityReceived';
 import { extractEntityName } from '@utils/entity';
 import ColoredIcon, { ICON_COLOR } from '@components/ColoredIcon/ColoredIcon';
 import QRIcon from '@icons/qr_code.svg';
+import config from '@constants/config.json';
 
 type DidAssignEntityProps = {
   onSuccess: (data: StepDataType<STEPS.did_assign_entity>) => void;
@@ -64,7 +65,7 @@ const DidAssignEntity: FC<DidAssignEntityProps> = ({ onSuccess, header }) => {
 
   return (
     <>
-      <Header header={header} />
+      <Header header={config.siteName} />
 
       <main className={cls(utilsStyles.main, utilsStyles.columnJustifyCenter, styles.stepContainer)}>
         {!entities?.length ? (

@@ -24,6 +24,7 @@ import { backRoute } from '@utils/router';
 import { queryAllowances } from '@utils/query';
 import RoundedPayment from '@icons/custom_rounded_payment.svg';
 import { addYearsToDate } from '@utils/misc';
+import config from '@constants/config.json';
 
 type ApproveEntityAuthzProps = {
   onSuccess: (data: StepDataType<STEPS.approve_entity_authz>) => void;
@@ -115,7 +116,7 @@ const ApproveEntityAuthz: FC<ApproveEntityAuthzProps> = ({ onSuccess, header, da
 
   return (
     <>
-      <Header header={header} />
+      <Header header={config.siteName} />
 
       <main className={cls(utilsStyles.main, utilsStyles.columnJustifyCenter, styles.stepContainer)}>
         {!entity ? (
