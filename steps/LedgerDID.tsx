@@ -13,7 +13,7 @@ import user from '@icons/user.svg';
 import ColoredIcon, { ICON_COLOR } from '@components/ColoredIcon/ColoredIcon';
 import Loader from '@components/Loader/Loader';
 import { ChainContext } from '@contexts/chain';
-import { queryAllowances } from '@utils/query';
+import { queryAllowances, queryIidDocument } from '@utils/query';
 import { defaultTrxFeeOption, generateCreateIidTrx } from '@utils/transactions';
 import { broadCastMessages } from '@utils/wallets';
 import { KEPLR_CHAIN_INFO_TYPE } from 'types/chain';
@@ -34,54 +34,74 @@ const LedgerDid: FC<LedgerDidProps> = ({ onSuccess, onBack, header }) => {
   const { queryClient, chain, chainInfo } = useContext(ChainContext);
 
   useEffect(() => {
-    if (wallet?.user?.did) onSuccess({ did: wallet.user.did });
+    if (wallet?.user?.did) {
+      onSuccess({ did: wallet.user.did });
+    } else if (wallet?.user?.pubKey) {
+      checkDid();
+    }
   }, [wallet?.user?.did]);
+
+  const checkDid = async () => {
+    try {
+      if (wallet?.user?.did) return wallet.user.did;
+      if (!wallet?.user?.pubKey) throw new Error('No public key found');
+      const did = utils.did.generateSecpDid(wallet?.user?.pubKey);
+      const didLedgered = queryClient ? await queryIidDocument(queryClient, did) : undefined;
+      if (!didLedgered) throw new Error('No DID found');
+      updateWalletUserDid(did);
+      return did;
+    } catch (error) {
+      console.error('checkDid::', error);
+      return undefined;
+    }
+  };
 
   const handleSubmit = async () => {
     try {
-      setStep('Checking if you have an allowance');
-      let allowances = await queryAllowances(queryClient!, wallet.user!.address);
-
-      if (!allowances?.allowances?.length) {
-        setStep('Granting you an allowance');
-        await axios
-          .post('/api/feegrant/grantFeegrant', {
-            address: wallet.user!.address,
-            chainNetwork: chain.chainNetwork,
-          })
-          .catch(console.error);
-
+      const existingDid = await checkDid();
+      if (!!existingDid) {
         setStep('Checking if you have an allowance');
-        allowances = await queryAllowances(queryClient!, wallet.user!.address);
+        let allowances = await queryAllowances(queryClient!, wallet.user!.address);
 
-        if (!allowances?.allowances?.length) throw new Error('Failed to grant feegrant');
+        if (!allowances?.allowances?.length) {
+          setStep('Granting you an allowance');
+          await axios
+            .post('/api/feegrant/grantFeegrant', {
+              address: wallet.user!.address,
+              chainNetwork: chain.chainNetwork,
+            })
+            .catch(console.error);
+
+          setStep('Checking if you have an allowance');
+          allowances = await queryAllowances(queryClient!, wallet.user!.address);
+
+          if (!allowances?.allowances?.length) throw new Error('Failed to grant feegrant');
+        }
+
+        setStep('Creating your ixo DID');
+
+        const did = utils.did.generateSecpDid(wallet.user!.pubKey);
+        const trx = generateCreateIidTrx({
+          did: did!,
+          pubkey: wallet.user!.pubKey,
+          address: wallet.user!.address,
+        });
+        const hash = await broadCastMessages(
+          wallet,
+          [trx],
+          'Ledgering DID from JAMBO (Supamoto)',
+          defaultTrxFeeOption,
+          'uixo',
+          chainInfo as KEPLR_CHAIN_INFO_TYPE,
+          allowances?.allowances[0]?.granter ?? undefined,
+        );
+
+        if (!hash) throw new Error('Failed to ledger DID');
+
+        setStep('Success!');
+        await delay(900);
       }
-
-      setStep('Creating your ixo DID');
-      console.log({ pubKey: wallet.user!?.pubKey });
-      const did = utils.did.generateSecpDid(wallet.user!.pubKey);
-      console.log({ did });
-      const trx = generateCreateIidTrx({
-        did: did!,
-        pubkey: wallet.user!.pubKey,
-        address: wallet.user!.address,
-      });
-      const hash = await broadCastMessages(
-        wallet,
-        [trx],
-        'Ledgering DID from JAMBO (Supamoto)',
-        defaultTrxFeeOption,
-        'uixo',
-        chainInfo as KEPLR_CHAIN_INFO_TYPE,
-        allowances?.allowances[0]?.granter ?? undefined,
-      );
-
-      if (!hash) throw new Error('Failed to ledger DID');
-
-      setStep('Success!');
-      await delay(900);
-
-      updateWalletUserDid(did);
+      updateWalletUserDid(existingDid!);
     } catch (error) {
       setError((error as { message: string })?.message ?? 'An error occurred');
     } finally {

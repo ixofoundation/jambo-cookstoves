@@ -15,7 +15,6 @@ export const initializeOpera = async (chainInfo: ChainInfo): Promise<USER | unde
     await opera.experimentalSuggestChain(chainInfo as ChainInfo);
     await opera.enable(chainInfo.chainId);
     const key = await opera.getKey(chainInfo.chainId);
-    console.log({ pubKey: key?.pubKey });
     return key
       ? { name: key.name, pubKey: key.pubKey, address: key.bech32Address, algo: key.algo, ledgered: true }
       : undefined;
@@ -43,7 +42,6 @@ export const operaBroadCastMessage = async (
 ): Promise<string | null> => {
   try {
     const [accounts, offlineSigner] = await connectOperaAccount(chainInfo);
-    console.log({ accounts });
 
     if (!accounts) throw new Error('No accounts found to broadcast transaction');
     if (!offlineSigner) throw new Error('No offlineSigner found to broadcast transaction');
