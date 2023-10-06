@@ -60,6 +60,7 @@ const ApproveEntityAuthz: FC<ApproveEntityAuthzProps> = ({ onSuccess, header, da
               },
               true,
             ) as { typeUrl: string; value: Uint8Array },
+            expiration: utils.proto.toTimestamp(addYearsToDate(new Date(), 100)),
           }),
         }),
         generateAuthzGrantTrx({
@@ -72,6 +73,7 @@ const ApproveEntityAuthz: FC<ApproveEntityAuthzProps> = ({ onSuccess, header, da
               },
               true,
             ) as { typeUrl: string; value: Uint8Array },
+            expiration: utils.proto.toTimestamp(addYearsToDate(new Date(), 100)),
           }),
         }),
         generateGrantEntityAccountAuthzTrx({
