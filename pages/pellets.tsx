@@ -16,7 +16,6 @@ import Loader from '@components/Loader/Loader';
 import ImageWithFallback from '@components/ImageFallback/ImageFallback';
 import Stepper from '@components/Stepper/Stepper';
 import PelletBagsIcon from '@icons/pellet_bags.svg';
-import PriceTagIcon from '@icons/price_tag.svg';
 import ThumbsUpIcon from '@icons/thumbs_up.svg';
 import {
   defaultTrxFeeOption,
@@ -119,7 +118,7 @@ const Pellets: NextPage = () => {
       const hash = await broadCastMessages(
         wallet,
         trxs,
-        `SupaMoto: ${PELLETS[selected]?.weight} pellets for ${wallet.user!?.did}}`,
+        `SupaMoto: ${PELLETS[selected]?.weight} pellets for ${wallet.user!?.did}`,
         defaultTrxFeeOption,
         'uixo',
         chainInfo!,

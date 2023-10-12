@@ -246,3 +246,20 @@ export const queryGranterGrants = async (queryClient: QUERY_CLIENT, granter: str
     return undefined;
   }
 };
+
+export const queryGrants = async (queryClient: QUERY_CLIENT, granter: string, grantee: string) => {
+  try {
+    const res = await queryClient.cosmos.authz.v1beta1.grants({ granter, grantee, msgTypeUrl: '' });
+    return res.grants?.map((g) => ({
+      ...g,
+      expiration: convertTimestampObjectToTimestamp(g.expiration!),
+      authorization: {
+        ...g.authorization,
+        value: cosmos.authz.v1beta1.GenericAuthorization.decode(g.authorization!.value!),
+      },
+    }));
+  } catch (error) {
+    console.error('queryGrants::', error);
+    return undefined;
+  }
+};

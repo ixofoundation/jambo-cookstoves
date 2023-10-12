@@ -11,7 +11,7 @@ import { KEPLR_CHAIN_INFO_TYPE } from 'types/chain';
 import { VALIDATOR } from 'types/validators';
 import { getLocalStorage, setLocalStorage } from '@utils/persistence';
 import { initializeWallet } from '@utils/wallets';
-import { queryGranterGrants, queryIidDocument } from '@utils/query';
+import { queryGrants, queryIidDocument } from '@utils/query';
 import { EVENT_LISTENER_TYPE } from '@constants/events';
 import { ChainContext } from './chain';
 import { getOpera } from '@utils/opera';
@@ -132,11 +132,14 @@ export const WalletProvider = ({ children }: HTMLAttributes<HTMLDivElement>) => 
       for (const entity of entitiesList) {
         const [entityProfile, userAuthzResponse, entityAuthzResponse] = await Promise.allSettled([
           fetchEntityProfile(entity),
-          queryClient ? queryGranterGrants(queryClient!, wallet.user!.address!) : undefined,
           queryClient
-            ? queryGranterGrants(
+            ? queryGrants(queryClient!, wallet.user!.address!, process.env.NEXT_PUBLIC_AUTHZ_ADDRESS ?? '')
+            : undefined,
+          queryClient
+            ? queryGrants(
                 queryClient!,
                 entity?.accounts?.find((a: EntityAccount) => a.name === 'admin')?.address!,
+                process.env.NEXT_PUBLIC_AUTHZ_ADDRESS ?? '',
               )
             : undefined,
         ]);
@@ -146,21 +149,24 @@ export const WalletProvider = ({ children }: HTMLAttributes<HTMLDivElement>) => 
           !!userAuthzResponse.value?.find(
             (g) =>
               g.authorization?.typeUrl === '/cosmos.authz.v1beta1.GenericAuthorization' &&
-              g.authorization.value?.msg === '/ixo.entity.v1beta1.MsgTransferEntity',
+              g.authorization.value?.msg === '/ixo.entity.v1beta1.MsgTransferEntity' &&
+              (g?.expiration ?? Date.now() + 1000) > Date.now(),
           );
         const userAuthZTokens =
           userAuthzResponse?.status === 'fulfilled' &&
           !!userAuthzResponse.value?.find(
             (g) =>
               g.authorization?.typeUrl === '/cosmos.authz.v1beta1.GenericAuthorization' &&
-              g.authorization.value?.msg === '/ixo.token.v1beta1.MsgTransferToken',
+              g.authorization.value?.msg === '/ixo.token.v1beta1.MsgTransferToken' &&
+              (g?.expiration ?? Date.now() + 1000) > Date.now(),
           );
         const entityAuthz =
           entityAuthzResponse?.status === 'fulfilled' &&
           !!entityAuthzResponse.value?.find(
             (g) =>
               g.authorization?.typeUrl === '/cosmos.authz.v1beta1.GenericAuthorization' &&
-              g.authorization.value?.msg === '/ixo.token.v1beta1.MsgTransferToken',
+              g.authorization.value?.msg === '/ixo.token.v1beta1.MsgTransferToken' &&
+              (g?.expiration ?? Date.now() + 1000) > Date.now(),
           );
         newEntities.push({
           ...entity,
